@@ -16,26 +16,29 @@ namespace Image_Preview
         public static string Filepath = @"C:\Users\vn\Desktop";  // Default path for saving images
         public static string extensions = ".jpg|.png";                // Supported file extensions
         public static string saveThumbImages = @"C:\Newfolder"; // for small thumb.....save directory
-        private UserControl1.ThumbNailSize _ThumbNails;
+        private ThumbNailSize _currentThumbSize = ThumbNailSize.Tiny;  // Default size
         private ContextMenu menu;
         public UserControl1()
         {
 
             InitializeComponent();
-           
+
+            // Load icons for thumbnail size
             Image tinyIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\tiny.png");
             Image mediumIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\medium.png");
             Image largeIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\large.png");
+
             // Create a new ContextMenuStrip and add "Rating" options
             ContextMenuStrip contextMenuStripView = new ContextMenuStrip();
-            ToolStripMenuItem oneStar = new ToolStripMenuItem("Tiny", tinyIcon, (sender, e) => thumb_size_tiny());
-            ToolStripMenuItem twoStars = new ToolStripMenuItem("Medium", mediumIcon, (sender, e) => SetRating(2));
-            ToolStripMenuItem threeStars = new ToolStripMenuItem("Large", largeIcon, (sender, e) => SetRating(3));
-            ToolStripMenuItem large = new ToolStripMenuItem("Large", largeIcon, (sender, e) => Reload());
-            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { oneStar, twoStars, threeStars,large });
+            ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
+            ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", largeIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
+
+            // Add the options to the context menu
+            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { tinyMenuItem, mediumMenuItem, largeMenuItem });
             this.iconButton1.ContextMenuStrip = contextMenuStripView;
 
-        
+
             this.iconButton1.MouseDown += new MouseEventHandler(this.iconButton1_MouseDown);
         }
        
@@ -49,97 +52,73 @@ namespace Image_Preview
                 this.iconButton1.ContextMenuStrip.Show(this.iconButton1, e.Location);
             }
         }
-        private void thumb_size_tiny()
+        private void ChangeThumbSize(ThumbNailSize size)
         {
-            DisposeImages();
-            flowLayoutPanel1.Controls.Clear();
-
-        }
-        private void SetRating(int rating)
-        {
-            MessageBox.Show($"You selected {rating} star(s)!");
+            _currentThumbSize = size;
+            Reload();  // Reload the images with the new size
         }
 
-       private void Reload()
+        private async void Reload()
         {
-
-
+            // Logic to reload the images based on the updated thumbnail size
+           await Populate(Filepath);  // Assuming you're reloading based on the default path for simplicity
         }
-        
-        public async Task Populate(string path =null,string[] imagePaths =null)
+
+
+
+        public async Task Populate(string path = null, string[] imagePaths = null)
         {
             if (Directory.Exists(path) && !string.IsNullOrEmpty(path) && imagePaths != null && imagePaths.Length != 0)
             {
-               
                 await DirectoryLoad(path);
-                MessageBox.Show($"Show All Images From Directory and Images Array List", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await LoadImagesFromArray(imagePaths,false);
-
+                MessageBox.Show($"Showing all images from directory and array list.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await LoadImagesFromArray(imagePaths, false);
             }
-            
             else if (imagePaths != null && imagePaths.Length != 0)
             {
-               
                 await LoadImagesFromArray(imagePaths, true);
             }
-            else if(Directory.Exists(path) && !string.IsNullOrEmpty(path)){
+            else if (Directory.Exists(path) && !string.IsNullOrEmpty(path))
+            {
                 await DirectoryLoad(path);
             }
-
-
-
         }
 
-       
+
         private async Task DirectoryLoad(string path)
         {
-
-
-           
-                DisposeImages();  
+            DisposeImages();
             flowLayoutPanel1.Controls.Clear();
 
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
             FileInfo[] files = directoryInfo.GetFiles();
             string[] extsn = extensions.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-       
+
             foreach (var file in files)
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                
                     Controls.mybtn btn = new Controls.mybtn
                     {
                         btn_text = file.Name,
                         filepath = file,
-                        
                     };
-                    Button outbtn = new Button();
-                    
 
-                    
-                    Image thumbnail = await GetThumbnailAsync(file.FullName);
-                    outbtn.BackgroundImage = thumbnail;
-                    btn.ourbtn2 = outbtn;
-                    Button customebtn = new Button();
-                    customebtn.BackgroundImage = thumbnail;
-                    customebtn.Size = new System.Drawing.Size(150, 150);
-                    customebtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-                    customebtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                    //btn.RefreshControl();
-                    flowLayoutPanel1.Controls.Add(customebtn);
-
-                   
+                    Button customBtn = new Button();
+                    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    customBtn.BackgroundImage = thumbnail;
+                    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                    customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                    flowLayoutPanel1.Controls.Add(customBtn);
                 }
             }
-            
-
-          
         }
-        public async Task LoadImagesFromArray(string[] imagePaths,bool all_true)
-        {
 
-            if (all_true) {
+        public async Task LoadImagesFromArray(string[] imagePaths, bool clearControls)
+        {
+            if (clearControls)
+            {
                 DisposeImages();
                 flowLayoutPanel1.Controls.Clear();
             }
@@ -153,54 +132,36 @@ namespace Image_Preview
                 }
 
                 string[] extsn = extensions.Split('|', (char)StringSplitOptions.RemoveEmptyEntries);
-
-
                 if (!extsn.Any(ext => imagePath.ToLower().EndsWith(ext.ToLower())))
                 {
                     MessageBox.Show($"Unsupported file type for '{imagePath}'.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
-
-                Image thumbnail = await GetThumbnailAsync(imagePath);
-
-
+                Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
                 Controls.mybtn btn = new Controls.mybtn
                 {
                     btn_text = Path.GetFileName(imagePath),
                     filepath = new FileInfo(imagePath),
                     BackgroundImage = thumbnail
-
                 };
-
 
                 btn.RefreshControl();
                 flowLayoutPanel1.Controls.Add(btn);
-
-
-
             }
-
-
         }
-
-
 
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size = ThumbNailSize.Tiny)
         {
-       
             int thumbSize = (int)size;
-
             return await Task.Run(() =>
             {
                 using (var img = Image.FromFile(imagePath))
                 {
-                    
                     return img.GetThumbnailImage(thumbSize, thumbSize, null, IntPtr.Zero);
                 }
             });
         }
-
 
         private void DisposeImages()
         {
@@ -208,37 +169,14 @@ namespace Image_Preview
             {
                 if (control is Controls.mybtn mybtnControl && mybtnControl.BackgroundImage != null)
                 {
-                    mybtnControl.BackgroundImage.Dispose();  
+                    mybtnControl.BackgroundImage.Dispose();
                 }
             }
         }
 
- 
         
 
-      
-        
 
- 
-        private static string GetImageResolution(FileInfo imageFile)
-        {
-            if (imageFile.Extension.ToLower() == ".jpg" || imageFile.Extension.ToLower() == ".png")
-            {
-                using (var image = Image.FromFile(imageFile.FullName))
-                {
-                    return $"{image.Width}x{image.Height}";
-                }
-            }
-            return "Unknown";
-        }
-
-       
-        public static void ClearImageCache()
-        {
-            
-        }
-
-     
         private void button1_Click(object sender, EventArgs e)
         {
            
