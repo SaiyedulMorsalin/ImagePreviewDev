@@ -16,7 +16,7 @@ namespace Image_Preview
         public static string Filepath = @"C:\Users\vn\Desktop";  // Default path for saving images
         public static string extensions = ".jpg|.png";                // Supported file extensions
         public static string saveThumbImages = @"C:\Newfolder"; // for small thumb.....save directory
-        private ThumbNailSize _currentThumbSize = ThumbNailSize.Tiny;  // Default size
+        private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  // Default size
         private ContextMenu menu;
         public UserControl1()
         {
@@ -60,14 +60,17 @@ namespace Image_Preview
 
         private async void Reload()
         {
-            // Logic to reload the images based on the updated thumbnail size
-           await Populate(Filepath);  // Assuming you're reloading based on the default path for simplicity
+           
+            
+            await Populate(Filepath);  // Assuming you're reloading based on the default path for simplicity
         }
 
 
 
         public async Task Populate(string path = null, string[] imagePaths = null)
         {
+
+            Filepath = path;
             if (Directory.Exists(path) && !string.IsNullOrEmpty(path) && imagePaths != null && imagePaths.Length != 0)
             {
                 await DirectoryLoad(path);
@@ -151,14 +154,27 @@ namespace Image_Preview
             }
         }
 
-        public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size = ThumbNailSize.Tiny)
+        public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size)
         {
-            int thumbSize = (int)size;
+            int targetThumbSize = (int)size; // The size for the larger dimension (either width or height)
+
             return await Task.Run(() =>
             {
                 using (var img = Image.FromFile(imagePath))
                 {
-                    return img.GetThumbnailImage(thumbSize, thumbSize, null, IntPtr.Zero);
+                    // Calculate the new dimensions while preserving the aspect ratio
+                    int originalWidth = img.Width;
+                    int originalHeight = img.Height;
+
+                    // Calculate the scaling factor
+                    double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
+
+                    // Calculate the new dimensions based on the scaling factor
+                    int newWidth = (int)(originalWidth * scalingFactor);
+                    int newHeight = (int)(originalHeight * scalingFactor);
+
+                    // Generate the thumbnail image using the new dimensions
+                    return img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
                 }
             });
         }
@@ -215,9 +231,9 @@ namespace Image_Preview
         }
         public enum ThumbNailSize
         {
-            Tiny = 50, 
-            Medium = 70, 
-            Large = 300, 
+            Tiny = 70, 
+            Medium = 100, 
+            Large = 175, 
         }
     }
 }
