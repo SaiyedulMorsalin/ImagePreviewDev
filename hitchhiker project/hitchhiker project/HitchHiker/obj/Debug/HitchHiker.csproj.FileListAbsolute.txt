@@ -1,0 +1,9 @@
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\HitchHiker.csproj.AssemblyReference.cache
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\LoneRobot.UI.Controls.HitchHiker.resources
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\LoneRobot.UI.HitchHikerFavouritesDialog.resources
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\LoneRobot.UI.Integration.LoneRobotInfo.resources
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\LoneRobot.UI.RenderOptions.resources
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\LoneRobot.UI.Resources.resources
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\HitchHiker.csproj.GenerateResource.cache
+C:\Users\zahid\Desktop\hitchhiker project\HitchHiker\obj\Debug\HitchHiker.csproj.CoreCompileInputs.cache
+C:\Users\mdsai\OneDrive\Desktop\hitchhiker project\hitchhiker project\HitchHiker\obj\Debug\HitchHiker.csproj.AssemblyReference.cache
