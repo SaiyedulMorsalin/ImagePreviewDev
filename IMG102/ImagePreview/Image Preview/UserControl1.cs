@@ -14,6 +14,7 @@ namespace Image_Preview
     public partial class UserControl1 : UserControl
     {
         public static string Filepath = @"C:\Users\vn\Desktop";  // Default path for saving images
+        public string[] LocalImagePaths;
         public static string extensions = ".jpg|.png";                // Supported file extensions
         public static string saveThumbImages = @"C:\Newfolder"; // for small thumb.....save directory
         private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  // Default size
@@ -28,18 +29,29 @@ namespace Image_Preview
             Image mediumIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\medium.png");
             Image largeIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\large.png");
 
-            // Create a new ContextMenuStrip and add "Rating" options
+            // Create a new ContextMenuStrip and add view options
             ContextMenuStrip contextMenuStripView = new ContextMenuStrip();
+            ContextMenuStrip contextMenuStripSort = new ContextMenuStrip();
             ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
             ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
             ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", largeIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
-
-            // Add the options to the context menu
+            // Add the options to the context menu in view
             contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { tinyMenuItem, mediumMenuItem, largeMenuItem });
+
+            // Create a new ContextMenuStrip and add Sorting options
+            ToolStripMenuItem onestar = new ToolStripMenuItem("1 Rating", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            ToolStripMenuItem twostar = new ToolStripMenuItem("2 Rating", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
+            ToolStripMenuItem threestar = new ToolStripMenuItem("3 Rating", largeIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
+            ToolStripMenuItem fourstar = new ToolStripMenuItem("4 Rating", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            ToolStripMenuItem fivestar = new ToolStripMenuItem("5 Rating", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
+            contextMenuStripSort.Items.AddRange(new ToolStripMenuItem[] {fivestar,fourstar,threestar,twostar,onestar});
+
             this.iconButton1.ContextMenuStrip = contextMenuStripView;
+            this.iconButton3.ContextMenuStrip = contextMenuStripSort;
 
 
             this.iconButton1.MouseDown += new MouseEventHandler(this.iconButton1_MouseDown);
+            this.iconButton3.MouseDown += new MouseEventHandler(this.iconButton2_MouseDown);
         }
        
        
@@ -52,6 +64,15 @@ namespace Image_Preview
                 this.iconButton1.ContextMenuStrip.Show(this.iconButton1, e.Location);
             }
         }
+        private void iconButton2_MouseDown(object sender, MouseEventArgs e)
+        {
+
+            if (e.Button == MouseButtons.Left)
+            {
+
+                this.iconButton3.ContextMenuStrip.Show(this.iconButton3, e.Location);
+            }
+        }
         private void ChangeThumbSize(ThumbNailSize size)
         {
             _currentThumbSize = size;
@@ -62,7 +83,7 @@ namespace Image_Preview
         {
            
             
-            await Populate(Filepath);  // Assuming you're reloading based on the default path for simplicity
+            await Populate(Filepath, LocalImagePaths);  
         }
 
 
@@ -71,6 +92,7 @@ namespace Image_Preview
         {
 
             Filepath = path;
+            LocalImagePaths = imagePaths;
             if (Directory.Exists(path) && !string.IsNullOrEmpty(path) && imagePaths != null && imagePaths.Length != 0)
             {
                 await DirectoryLoad(path);
@@ -101,11 +123,7 @@ namespace Image_Preview
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                    Controls.mybtn btn = new Controls.mybtn
-                    {
-                        btn_text = file.Name,
-                        filepath = file,
-                    };
+                   
 
                     Button customBtn = new Button();
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
@@ -142,38 +160,35 @@ namespace Image_Preview
                 }
 
                 Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
-                Controls.mybtn btn = new Controls.mybtn
-                {
-                    btn_text = Path.GetFileName(imagePath),
-                    filepath = new FileInfo(imagePath),
-                    BackgroundImage = thumbnail
-                };
-
-                btn.RefreshControl();
-                flowLayoutPanel1.Controls.Add(btn);
+                Button customBtn = new Button();
+                customBtn.BackgroundImage = thumbnail;
+                customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
 
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size)
         {
-            int targetThumbSize = (int)size; // The size for the larger dimension (either width or height)
+            int targetThumbSize = (int)size; 
 
             return await Task.Run(() =>
             {
                 using (var img = Image.FromFile(imagePath))
                 {
-                    // Calculate the new dimensions while preserving the aspect ratio
+                 
                     int originalWidth = img.Width;
                     int originalHeight = img.Height;
 
-                    // Calculate the scaling factor
+               
                     double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
 
-                    // Calculate the new dimensions based on the scaling factor
+                   
                     int newWidth = (int)(originalWidth * scalingFactor);
                     int newHeight = (int)(originalHeight * scalingFactor);
 
-                    // Generate the thumbnail image using the new dimensions
+                 
                     return img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
                 }
             });
