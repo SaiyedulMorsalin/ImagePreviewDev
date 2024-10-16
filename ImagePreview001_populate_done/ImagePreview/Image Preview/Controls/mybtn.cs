@@ -7,7 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autodesk.Max;
-
 namespace Image_Preview.Controls
 {
     public partial class mybtn : UserControl
@@ -15,25 +14,17 @@ namespace Image_Preview.Controls
         private ContextMenuStrip contextMenuStrip;
         public string btn_text = "";
         public FileInfo filepath = null;
-        private string _CurrentItem = null;
-        private readonly string cacheDirectory = @"C:\ImageCache";
 
-        public Button ourbtn2;
-        public static string smallThumbImagesDirectory = @"C:\SmallThumb";
+        private readonly string cacheDirectory = @"C:\ImageCache";
+        
 
         public mybtn()
         {
             InitializeComponent();
             InitializeContextMenu();
-
             if (!Directory.Exists(cacheDirectory))
                 Directory.CreateDirectory(cacheDirectory);
-
-            if (!Directory.Exists(smallThumbImagesDirectory))
-                Directory.CreateDirectory(smallThumbImagesDirectory);
-
             button1.Click += button3_Click;
-            ourbtn2 = this.button1;
         }
 
         private void InitializeContextMenu()
@@ -43,7 +34,7 @@ namespace Image_Preview.Controls
             {
                 new ToolStripMenuItem("Option 1", null, (sender, e) => MessageBox.Show("Option 1 selected!")),
                 new ToolStripMenuItem("Option 2", null, (sender, e) => MessageBox.Show("Option 2 selected!")),
-                new ToolStripMenuItem("Delete", null, (sender, e) => DeleteImage(filepath?.FullName)),
+                new ToolStripMenuItem("Delete", null, (sender, e) => DeleteImage(filepath.FullName)),
                 new ToolStripMenuItem("Clear Cache", null, (sender, e) => ClearCache())
             });
 
@@ -55,27 +46,24 @@ namespace Image_Preview.Controls
             button1.Text = btn_text;
             LoadImages();
         }
-        IGlobal maxGlobal = Autodesk.Max.GlobalInterface.Instance;
-      
+
         private async void LoadImages()
         {
             try
             {
-                if (filepath == null || !File.Exists(filepath.FullName))
-                    throw new FileNotFoundException("File not found.");
+                if (!File.Exists(filepath.FullName))
+                    throw new FileNotFoundException("Error: File not found.");
 
-                // Ensure valid image formats
+                
                 string[] validExtensions = { ".jpg", ".jpeg", ".png" };
                 if (!validExtensions.Contains(Path.GetExtension(filepath.FullName).ToLower()))
                     return;
 
-                // Load image and update button
                 Image image = await GetImageFromCacheOrLoadAsync(filepath.FullName);
-                button1.BackgroundImage?.Dispose();  // Dispose the old image
+                button1.BackgroundImage?.Dispose();
                 button1.BackgroundImage = image;
                 button1.Text = "";
 
-                // Tooltip with image details
                 ToolTip toolTip = new ToolTip();
                 toolTip.SetToolTip(button1, $"Filename: {filepath.Name}\nPath: {filepath.FullName}");
             }
@@ -84,27 +72,35 @@ namespace Image_Preview.Controls
                 button1.BackgroundImage = null;
                 MessageBox.Show($"Error loading image: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+          
+
         }
 
+        public static string smallThumbImagesDirectory = @"C:\SmallThumb";
         public async Task<Image> GetImageFromCacheOrLoadAsync(string imagePath)
         {
+        
             Image cachedImage = await LoadImageFromCache(imagePath);
             if (cachedImage != null)
                 return cachedImage;
 
-            using (Image image = Image.FromFile(imagePath))
-            {
-                var thumbnail = image.GetThumbnailImage(175, 175, null, IntPtr.Zero);
-                string thumbPath = Path.Combine(smallThumbImagesDirectory, Path.GetFileNameWithoutExtension(imagePath) + "_thumbnail.jpg");
+   
+            if (!Directory.Exists(smallThumbImagesDirectory))
+                Directory.CreateDirectory(smallThumbImagesDirectory);
 
-                thumbnail.Save(thumbPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+          
+            Image image = Image.FromFile(imagePath);
 
-                // Cache the thumbnail
-                await SaveImageToCache(imagePath, thumbnail);
+            var thumbnail = image.GetThumbnailImage(175, 175, null, IntPtr.Zero);
 
-                return thumbnail;
-            }
+            string fileName = Path.GetFileNameWithoutExtension(imagePath) + "_thumbnail.jpg";
+            string thumbPath = Path.Combine(smallThumbImagesDirectory, fileName);
+            thumbnail.Save(thumbPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+            await SaveImageToCache(imagePath, thumbnail);
+
+            return thumbnail;
         }
+
 
         public async Task SaveImageToCache(string filePath, Image image)
         {
@@ -147,19 +143,25 @@ namespace Image_Preview.Controls
                 Clipboard.SetText(filepath.FullName);
         }
 
-        public string CurrentItem ="Studio design";
         private void button3_Click(object sender, EventArgs e)
         {
-            if (filepath == null)
+            if(filepath == null)
             {
-                MessageBox.Show("Image Path Not Found", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string mess = "Image Path Not Found";
+                IGlobal global1 = GlobalInterface.Instance;
+                string scriptCommand1 = "print \"Hello from MAXScript!\"";
+                Autodesk.Max.MAXScript.ScriptSource source1 = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
+                global1.ExecuteMAXScriptScript(scriptCommand1, source1, true, null, true);
+                MessageBox.Show($"Error displaying image details: {mess}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 return;
             }
-            CurrentItem = filepath.FullName;
+            IGlobal global = GlobalInterface.Instance;
+           
+            Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
+            global.ExecuteMAXScriptScript(filepath.FullName, source, true, null, true);
             ShowImageDetails(filepath.FullName);
         }
-
-        
 
         private void ShowImageDetails(string imagePath)
         {
@@ -170,7 +172,11 @@ namespace Image_Preview.Controls
                 string resolution = GetImageResolution(imageFile);
                 string creationDate = imageFile.CreationTime.ToString("g");
 
-                string message = $"File: {imageFile.Name} {CurrentItem}\nSize: {fileSizeInKB}\nResolution: {resolution}\nCreated On: {creationDate}";
+                string message = $"File: {imageFile.Name}\n" +
+                                 $"Size: {fileSizeInKB}\n" +
+                                 $"Resolution: {resolution}\n" +
+                                 $"Created On: {creationDate}";
+
                 MessageBox.Show(message, "Image Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -181,7 +187,7 @@ namespace Image_Preview.Controls
 
         private string GetImageResolution(FileInfo imageFile)
         {
-            using (Image image = Image.FromFile(imageFile.FullName))
+            using (var image = Image.FromFile(imageFile.FullName))
             {
                 return $"{image.Width}x{image.Height}";
             }
@@ -191,15 +197,17 @@ namespace Image_Preview.Controls
         {
             try
             {
-                if (filePath == null || !File.Exists(filePath))
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+
+                    ReloadControl();
+                    MessageBox.Show($"{filePath} deleted successfully.");
+                }
+                else
                 {
                     MessageBox.Show("File not found.");
-                    return;
                 }
-
-                File.Delete(filePath);
-                ReloadControl();
-                MessageBox.Show($"{filePath} deleted successfully.");
             }
             catch (Exception ex)
             {
@@ -209,7 +217,8 @@ namespace Image_Preview.Controls
 
         private void ReloadControl()
         {
-            this.Refresh();
+            // Reload your control here (if applicable)
+            // e.g., this.Invalidate() or this.Refresh();
         }
 
         public void ClearCache()
@@ -219,6 +228,7 @@ namespace Image_Preview.Controls
                 File.Delete(cacheFile);
             }
 
+          
             MessageBox.Show("All image cache has been cleared.", "Cache Cleared", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }

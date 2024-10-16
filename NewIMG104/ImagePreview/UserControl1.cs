@@ -12,44 +12,18 @@ using System.IO;
 
 namespace ImagePreview
 {
-    public partial class UserControl1: UserControl
+    public partial class UserControl1 : UserControl
     {
-
-        // public variables.....
         public static string Filepath = @"C:\Users\vn\Desktop";  // Default path for saving images
         public static string extensions = ".jpg|.png";                // Supported file extensions
         public static string saveThumbImages = @"C:\Newfolder"; // for small thumb.....save directory
-
-
-
-
-        // private varialbes.........
-
-        [AccessedThroughProperty("ToolStripMenuBar")]
-        private ToolStrip _ToolStripMenuBar;
-        private ToolStripDropDownButton _ToolStripFiletypes;
-        [AccessedThroughProperty("ToolStripThumbsize")]
-        private ToolStripDropDownButton _ToolStripThumbsize;
-        [AccessedThroughProperty("TinyToolStripMenuItem")]
-        private ToolStripMenuItem _TinyToolStripMenuItem;
-        [AccessedThroughProperty("SmallToolStripMenuItem")]
-        private ToolStripMenuItem _SmallToolStripMenuItem;
-        [AccessedThroughProperty("MediumToolStripMenuItem")]
-        private ToolStripMenuItem _MediumToolStripMenuItem;
-        [AccessedThroughProperty("LargeToolStripMenuItem")]
-        private ToolStripMenuItem _LargeToolStripMenuItem;
-        [AccessedThroughProperty("ExtraLargeToolStripMenuItem")]
-        private Size _Thumbsize;
-        private ToolStripDropDownButton ToolStripThumbsize;
-        private string _CurrentItem;
-
-
-
-
-
+        private UserControl1.ThumbNailSize _ThumbNails;
+        private ContextMenu menu;
         public UserControl1()
         {
+
             InitializeComponent();
+
             Image tinyIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\tiny.png");
             Image mediumIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\medium.png");
             Image largeIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\large.png");
@@ -58,14 +32,73 @@ namespace ImagePreview
             ToolStripMenuItem oneStar = new ToolStripMenuItem("Tiny", tinyIcon, (sender, e) => thumb_size_tiny());
             ToolStripMenuItem twoStars = new ToolStripMenuItem("Medium", mediumIcon, (sender, e) => SetRating(2));
             ToolStripMenuItem threeStars = new ToolStripMenuItem("Large", largeIcon, (sender, e) => SetRating(3));
-            
+            ToolStripMenuItem large = new ToolStripMenuItem("Large", largeIcon, (sender, e) => Reload());
+            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { oneStar, twoStars, threeStars, large });
+            //this.iconButton1.ContextMenuStrip = contextMenuStripView;
+
+
+            //this.iconButton1.MouseDown += new MouseEventHandler(this.iconButton1_MouseDown);
         }
+
+
+        private void iconButton1_MouseDown(object sender, MouseEventArgs e)
+        {
+
+            if (e.Button == MouseButtons.Left)
+            {
+
+                //this.iconButton1.ContextMenuStrip.Show(this.iconButton1, e.Location);
+            }
+        }
+        private void thumb_size_tiny()
+        {
+            DisposeImages();
+            flowLayoutPanel1.Controls.Clear();
+
+        }
+        private void SetRating(int rating)
+        {
+            MessageBox.Show($"You selected {rating} star(s)!");
+        }
+
+        private void Reload()
+        {
+
+
+        }
+
+        public async Task Populate(string path = null, string[] imagePaths = null)
+        {
+            if (Directory.Exists(path) && !string.IsNullOrEmpty(path) && imagePaths != null && imagePaths.Length != 0)
+            {
+
+                await DirectoryLoad(path);
+                MessageBox.Show($"Show All Images From Directory and Images Array List", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await LoadImagesFromArray(imagePaths, false);
+
+            }
+
+            else if (imagePaths != null && imagePaths.Length != 0)
+            {
+
+                await LoadImagesFromArray(imagePaths, true);
+            }
+            else if (Directory.Exists(path) && !string.IsNullOrEmpty(path))
+            {
+                await DirectoryLoad(path);
+            }
+
+
+
+        }
+
+
         private async Task DirectoryLoad(string path)
         {
 
 
 
-         
+            DisposeImages();
             flowLayoutPanel1.Controls.Clear();
 
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
@@ -84,14 +117,13 @@ namespace ImagePreview
 
                     Image thumbnail = await GetThumbnailAsync(file.FullName);
                     outbtn.BackgroundImage = thumbnail;
-
-                    Button customebtn = new Button
-                    {
-                        BackgroundImage = thumbnail,
-                        Size = new System.Drawing.Size(150, 150),
-                        BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom,
-                        FlatStyle = System.Windows.Forms.FlatStyle.Flat
-                    };
+                   
+                    Button customebtn = new Button();
+                    customebtn.BackgroundImage = thumbnail;
+                    customebtn.Size = new System.Drawing.Size(150, 150);
+                    customebtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                    customebtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                    //btn.RefreshControl();
                     flowLayoutPanel1.Controls.Add(customebtn);
 
 
@@ -101,6 +133,48 @@ namespace ImagePreview
 
 
         }
+        public async Task LoadImagesFromArray(string[] imagePaths, bool all_true)
+        {
+
+            if (all_true)
+            {
+                DisposeImages();
+                flowLayoutPanel1.Controls.Clear();
+            }
+
+            foreach (var imagePath in imagePaths)
+            {
+                if (!File.Exists(imagePath))
+                {
+                    MessageBox.Show($"File '{imagePath}' does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                }
+
+                string[] extsn = extensions.Split('|', (char)StringSplitOptions.RemoveEmptyEntries);
+
+
+                if (!extsn.Any(ext => imagePath.ToLower().EndsWith(ext.ToLower())))
+                {
+                    MessageBox.Show($"Unsupported file type for '{imagePath}'.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                }
+
+
+                Image thumbnail = await GetThumbnailAsync(imagePath);
+
+
+                
+                //flowLayoutPanel1.Controls.Add(btn);
+
+
+
+            }
+
+
+        }
+
+
+
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size = ThumbNailSize.Tiny)
         {
 
@@ -116,17 +190,36 @@ namespace ImagePreview
             });
         }
 
-        private void thumb_size_tiny()
-        {
-           
-            flowLayoutPanel1.Controls.Clear();
 
-        }
-        private void SetRating(int rating)
+        private void DisposeImages()
         {
-            MessageBox.Show($"You selected {rating} star(s)!");
+            foreach (Control control in flowLayoutPanel1.Controls)
+            {
+               
+            }
         }
-        private void LoadImage(string filepath)
+
+
+
+
+
+
+
+
+        private static string GetImageResolution(FileInfo imageFile)
+        {
+            if (imageFile.Extension.ToLower() == ".jpg" || imageFile.Extension.ToLower() == ".png")
+            {
+                using (var image = Image.FromFile(imageFile.FullName))
+                {
+                    return $"{image.Width}x{image.Height}";
+                }
+            }
+            return "Unknown";
+        }
+
+
+        public static void ClearImageCache()
         {
 
         }

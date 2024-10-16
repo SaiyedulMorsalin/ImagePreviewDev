@@ -8,6 +8,11 @@ using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Shapes;
+using Autodesk.Max;
+using CSharpUtilities;
+using MaxCustomControls;
+using System.Globalization;
 
 namespace Image_Preview
 {
@@ -19,31 +24,34 @@ namespace Image_Preview
         public static string saveThumbImages = @"C:\Newfolder"; // for small thumb.....save directory
         private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  // Default size
         private ContextMenu menu;
+      
+        public string name = "Stuio Dexine";
+  
         public UserControl1()
         {
 
             InitializeComponent();
-
+            
             // Load icons for thumbnail size
-            Image tinyIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\tiny.png");
-            Image mediumIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\medium.png");
-            Image largeIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\large.png");
+            //Image tinyIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\tiny.png");
+            //Image mediumIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\medium.png");
+            //Image largeIcon = Image.FromFile(@"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\large.png");
 
             // Create a new ContextMenuStrip and add view options
             ContextMenuStrip contextMenuStripView = new ContextMenuStrip();
             ContextMenuStrip contextMenuStripSort = new ContextMenuStrip();
-            ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
-            ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
-            ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", largeIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
+            ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
+            ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
             // Add the options to the context menu in view
             contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { tinyMenuItem, mediumMenuItem, largeMenuItem });
 
             // Create a new ContextMenuStrip and add Sorting options
-            ToolStripMenuItem onestar = new ToolStripMenuItem("1 Rating", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
-            ToolStripMenuItem twostar = new ToolStripMenuItem("2 Rating", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
-            ToolStripMenuItem threestar = new ToolStripMenuItem("3 Rating", largeIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
-            ToolStripMenuItem fourstar = new ToolStripMenuItem("4 Rating", tinyIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
-            ToolStripMenuItem fivestar = new ToolStripMenuItem("5 Rating", mediumIcon, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
+            ToolStripMenuItem onestar = new ToolStripMenuItem("1 Rating", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            ToolStripMenuItem twostar = new ToolStripMenuItem("2 Rating", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
+            ToolStripMenuItem threestar = new ToolStripMenuItem("3 Rating", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
+            ToolStripMenuItem fourstar = new ToolStripMenuItem("4 Rating", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            ToolStripMenuItem fivestar = new ToolStripMenuItem("5 Rating", null, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
             contextMenuStripSort.Items.AddRange(new ToolStripMenuItem[] {fivestar,fourstar,threestar,twostar,onestar});
 
             this.iconButton1.ContextMenuStrip = contextMenuStripView;
@@ -54,7 +62,7 @@ namespace Image_Preview
             this.iconButton3.MouseDown += new MouseEventHandler(this.iconButton2_MouseDown);
         }
        
-       
+        public delegate void ThumbPickedEventHandler(object sender, PickedEventArgs e);
         private void iconButton1_MouseDown(object sender, MouseEventArgs e)
         {
           
@@ -81,7 +89,6 @@ namespace Image_Preview
 
         private async void Reload()
         {
-           
             
             await Populate(Filepath, LocalImagePaths);  
         }
@@ -110,7 +117,7 @@ namespace Image_Preview
         }
 
 
-        private async Task DirectoryLoad(string path)
+        public async Task DirectoryLoad(string path)
         {
             DisposeImages();
             flowLayoutPanel1.Controls.Clear();
@@ -131,10 +138,29 @@ namespace Image_Preview
                     customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                     customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                    customBtn.Click += (sender, e) => pickeditem(file.FullName,thumbnail);
                     flowLayoutPanel1.Controls.Add(customBtn);
                 }
             }
         }
+        public event EventHandler Clicked;
+        public string scriptCommand;
+        public string CurrentItem;
+        public Image CurrentImage;
+        public void pickeditem(string path,Image image)
+        {
+           
+            IGlobal global = GlobalInterface.Instance;
+            CurrentItem=path;
+            CurrentImage=image;
+            scriptCommand = $"print \"{path}\"";
+            Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
+            global.ExecuteMAXScriptScript(scriptCommand, source, true, null, true);
+         
+            
+
+        }
+
 
         public async Task LoadImagesFromArray(string[] imagePaths, bool clearControls)
         {
@@ -159,12 +185,13 @@ namespace Image_Preview
                     continue;
                 }
 
-                Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
                 Button customBtn = new Button();
+                Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
                 customBtn.BackgroundImage = thumbnail;
                 customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
@@ -198,10 +225,7 @@ namespace Image_Preview
         {
             foreach (Control control in flowLayoutPanel1.Controls)
             {
-                if (control is Controls.mybtn mybtnControl && mybtnControl.BackgroundImage != null)
-                {
-                    mybtnControl.BackgroundImage.Dispose();
-                }
+                
             }
         }
 

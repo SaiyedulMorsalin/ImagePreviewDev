@@ -33,10 +33,14 @@ rollout imageloader "small browser" width:700 height:500
    (
 		fileArray = #()
 	   fileArry2= #()
-	   append fileArray @"C:\Users\mdsai\OneDrive\Desktop\pro_struc.png"
-	   print "Reload"
+	   append fileArray @"C:\Users\mdsai\OneDrive\Desktop\studio design.png"
+	   append fileArray @"C:\Users\mdsai\OneDrive\Desktop\sss.png"	  
+	   append fileArray @"C:\Users\mdsai\OneDrive\Desktop\studio design.png"
+
 	   small_dialog.Populate "" fileArray
-	   print @"C:\Users\mdsai\OneDrive\Pictures\Rate\"
+	   print small_dialog.CurrentItem
+	   print small_dialog.name
+	
 
    )
     button b04 "Refresh3"
@@ -44,8 +48,10 @@ rollout imageloader "small browser" width:700 height:500
    (
 		
 	   print "Reload3"
-	   
-		print mybtn.CurrentItem
+	   print small_dialog.scriptCommand 
+		print small_dialog.CurrentItem 
+	   print small_dialog.CurrentImage 
+
    )
    
    
