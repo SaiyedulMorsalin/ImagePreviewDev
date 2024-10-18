@@ -138,9 +138,7 @@ namespace Image_Preview
                     customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                     customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
- customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
-                    //customBtn.Click += (sender, e) => OnThumbnailClick();
-                  //  customBtn.Click += (sender, e) => thumb_pic_clik();
+                    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
                     flowLayoutPanel1.Controls.Add(customBtn);
                 }
             }
@@ -150,11 +148,7 @@ namespace Image_Preview
         public string CurrentItem;
         public Image CurrentImage;
         public string maxScriptCode;
-        // public delegate void PicClickThumb(object sender, PickedEventArgs e);
-        //public delegate void ThumbnailClickedHandler();
-        //public event ThumbnailClickedHandler ThumbnailClicked;
-        //public event Action ThumbnailClicked;
-        public event ThumbPickedEventHandler ThumbPicked;  // Event using the delegate
+        public event ThumbPickedEventHandler ThumbPicked; 
 
         public void OnThumbnailClick()
         {
@@ -176,7 +170,6 @@ namespace Image_Preview
                 Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
                 global.ExecuteMAXScriptScript(scriptCommand, source, true, null, true);
 
-                // Raise the event and pass the necessary data
                 ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
 
                 MessageBox.Show($"Thumbnail clicked: {path}", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -186,19 +179,7 @@ namespace Image_Preview
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        //public void thumb_pic_clik()
-        //{
-        //    try
-        //    {
-        //        ThumbnailClicked?.Invoke();
-        //        MessageBox.Show($"Thumb Pic Click: ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Thumb Pic Click Error: {ex} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-
-        //}
+        
 
         public async Task LoadImagesFromArray(string[] imagePaths, bool clearControls)
         {
@@ -230,8 +211,7 @@ namespace Image_Preview
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                customBtn.Click += (sender, e) => pickeditem(imagePath,thumbnail);
-                //customBtn.Click += (sender, e) => thumb_pic_clik();
-                //customBtn.Click += (sender, e) => OnThumbnailClick();
+            
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
@@ -309,11 +289,6 @@ namespace Image_Preview
             Large = 175, 
         }
 
-        private async void button1_Click_3(object sender, EventArgs e)
-           
-        {
-            string[] imglist = { @"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\tiny.png" };
-            await Populate("", imglist);
-        }
+        
     }
 }
