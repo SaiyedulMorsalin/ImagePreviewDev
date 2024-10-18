@@ -18,11 +18,11 @@ namespace Image_Preview
 {
     public partial class UserControl1 : UserControl
     {
-        public static string Filepath = @"C:\Users\vn\Desktop";  // Default path for saving images
+        public static string Filepath = @"C:\Users\vn\Desktop";  
         public string[] LocalImagePaths;
-        public static string extensions = ".jpg|.png";                // Supported file extensions
-        public static string saveThumbImages = @"C:\Newfolder"; // for small thumb.....save directory
-        private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  // Default size
+        public static string extensions = ".jpg|.png";              
+        public static string saveThumbImages = @"C:\Newfolder";
+        private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  
         private ContextMenu menu;
       
         public string name = "Stuio Dexine";
@@ -138,7 +138,9 @@ namespace Image_Preview
                     customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                     customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                    customBtn.Click += (sender, e) => pickeditem(file.FullName,thumbnail);
+ customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                    //customBtn.Click += (sender, e) => OnThumbnailClick();
+                  //  customBtn.Click += (sender, e) => thumb_pic_clik();
                     flowLayoutPanel1.Controls.Add(customBtn);
                 }
             }
@@ -147,20 +149,56 @@ namespace Image_Preview
         public string scriptCommand;
         public string CurrentItem;
         public Image CurrentImage;
-        public void pickeditem(string path,Image image)
+        public string maxScriptCode;
+        // public delegate void PicClickThumb(object sender, PickedEventArgs e);
+        //public delegate void ThumbnailClickedHandler();
+        //public event ThumbnailClickedHandler ThumbnailClicked;
+        //public event Action ThumbnailClicked;
+        public event ThumbPickedEventHandler ThumbPicked;  // Event using the delegate
+
+        public void OnThumbnailClick()
         {
-           
-            IGlobal global = GlobalInterface.Instance;
-            CurrentItem=path;
-            CurrentImage=image;
-            scriptCommand = $"print \"{path}\"";
-            Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
-            global.ExecuteMAXScriptScript(scriptCommand, source, true, null, true);
-         
             
 
+            
+          
         }
 
+        public void pickeditem(string path, Image thumbnail)
+        {
+            try
+            {
+                IGlobal global = GlobalInterface.Instance;
+                CurrentItem = path;
+                CurrentImage = thumbnail;
+
+                scriptCommand = $"print \"{path}\"";
+                Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
+                global.ExecuteMAXScriptScript(scriptCommand, source, true, null, true);
+
+                // Raise the event and pass the necessary data
+                ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
+
+                MessageBox.Show($"Thumbnail clicked: {path}", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        //public void thumb_pic_clik()
+        //{
+        //    try
+        //    {
+        //        ThumbnailClicked?.Invoke();
+        //        MessageBox.Show($"Thumb Pic Click: ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Thumb Pic Click Error: {ex} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+
+        //}
 
         public async Task LoadImagesFromArray(string[] imagePaths, bool clearControls)
         {
@@ -191,7 +229,9 @@ namespace Image_Preview
                 customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
+               customBtn.Click += (sender, e) => pickeditem(imagePath,thumbnail);
+                //customBtn.Click += (sender, e) => thumb_pic_clik();
+                //customBtn.Click += (sender, e) => OnThumbnailClick();
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
@@ -207,15 +247,9 @@ namespace Image_Preview
                  
                     int originalWidth = img.Width;
                     int originalHeight = img.Height;
-
-               
-                    double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
-
-                   
+                    double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);   
                     int newWidth = (int)(originalWidth * scalingFactor);
-                    int newHeight = (int)(originalHeight * scalingFactor);
-
-                 
+                    int newHeight = (int)(originalHeight * scalingFactor);              
                     return img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
                 }
             });
@@ -245,7 +279,7 @@ namespace Image_Preview
 
 
 
-
+        
 
         private void button1_Click_1(object sender, EventArgs e) { }
 
@@ -273,6 +307,13 @@ namespace Image_Preview
             Tiny = 70, 
             Medium = 100, 
             Large = 175, 
+        }
+
+        private async void button1_Click_3(object sender, EventArgs e)
+           
+        {
+            string[] imglist = { @"C:\Users\mdsai\OneDrive\Desktop\IMG102\ImagePreview\Image Preview\Resources\tiny.png" };
+            await Populate("", imglist);
         }
     }
 }
