@@ -128,20 +128,64 @@ namespace Image_Preview
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                   
-
-                    Button customBtn = new Button();
-                    Label customLabel = new Label();
-                    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
-                    var rating = thumbnail.GetPropertyItem(18246);
-                    rateImage = rating.ToString();
-                    customBtn.BackgroundImage = thumbnail;
                     
-                    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-                    customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
-                    flowLayoutPanel1.Controls.Add(customBtn);
+                     
+                   
+                    if (_currentThumbSize == ThumbNailSize.Large)
+                    {
+
+                        Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                        Controls.ImageButton btn = new Controls.ImageButton();
+
+                        btn.button1.Image = thumbnail;
+                        btn.button1.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                        btn.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                        btn.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                        btn.button1.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                        //Button customBtn = new Button();
+                        //Label customLabel = new Label();
+                        ////Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                        ////customBtn.BackgroundImage = thumbnail;
+                        //customBtn.Image = thumbnail;
+                        //customLabel.ImageAlign = ContentAlignment.TopCenter;
+                        ////customBtn.Padding = new Padding(15);
+                        //customBtn.Text = "*****";
+                        //customBtn.TextAlign = ContentAlignment.BottomCenter;
+                        //customBtn.Font = new Font("French Script MT", 48);
+                        
+
+                        //customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                        //customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                        //customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                        
+                        //customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                        flowLayoutPanel1.Controls.Add(btn);
+
+                    }
+                    else if(_currentThumbSize == ThumbNailSize.Medium){
+                        Button customBtn = new Button();
+                        Label customLabel = new Label();
+                        Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                        customBtn.BackgroundImage = thumbnail;
+                        customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize+30);
+                        customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                        customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                        customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                        flowLayoutPanel1.Controls.Add(customBtn);
+                    }
+                    else
+                    {
+                        Button customBtn = new Button();
+                        Label customLabel = new Label();
+                        Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                        customBtn.BackgroundImage = thumbnail;
+                        customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                        customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                        customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                        customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                        flowLayoutPanel1.Controls.Add(customBtn);
+                    }
+                    
                 }
             }
         }
@@ -294,12 +338,18 @@ namespace Image_Preview
             Large = 175, 
         }
 
-        private void button1_Click_3(object sender, EventArgs e)
+        private  void button1_Click_3(object sender, EventArgs e)
         {
             ShellFile shellFile = ShellFile.FromFilePath(@"C:\Users\mdsai\OneDrive\Desktop\errors.jpg");
              int? rating = (int?) shellFile.Properties.System.Rating.Value;
             int stars = (rating.HasValue) ? rating.Value / 20 +1: 0;
             MessageBox.Show($"Rating  '{stars}'", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+          
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
         }
     }
 }

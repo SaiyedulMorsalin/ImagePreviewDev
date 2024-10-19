@@ -204,3 +204,4 @@ C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\b
 C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.Shell.dll
 C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.xml
 C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.Shell.xml
+C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\obj\Debug\Image_Preview.Controls.ImageButton.resources
