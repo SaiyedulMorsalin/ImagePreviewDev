@@ -13,6 +13,7 @@ using Autodesk.Max;
 using CSharpUtilities;
 using MaxCustomControls;
 using System.Globalization;
+using Microsoft.WindowsAPICodePack.Shell;
 
 namespace Image_Preview
 {
@@ -103,8 +104,8 @@ namespace Image_Preview
 
 
 
-        
 
+        public string rateImage = null;
    
         public async Task Populate(string path)
         {
@@ -127,11 +128,15 @@ namespace Image_Preview
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                   Console.WriteLine(file.FullName);
-                  
+                   
+
                     Button customBtn = new Button();
+                    Label customLabel = new Label();
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    var rating = thumbnail.GetPropertyItem(18246);
+                    rateImage = rating.ToString();
                     customBtn.BackgroundImage = thumbnail;
+                    
                     customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                     customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -289,6 +294,12 @@ namespace Image_Preview
             Large = 175, 
         }
 
-       
+        private void button1_Click_3(object sender, EventArgs e)
+        {
+            ShellFile shellFile = ShellFile.FromFilePath(@"C:\Users\mdsai\OneDrive\Desktop\errors.jpg");
+             int? rating = (int?) shellFile.Properties.System.Rating.Value;
+            int stars = (rating.HasValue) ? rating.Value / 20 +1: 0;
+            MessageBox.Show($"Rating  '{stars}'", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 }

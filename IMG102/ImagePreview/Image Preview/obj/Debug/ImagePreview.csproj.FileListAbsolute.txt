@@ -200,3 +200,7 @@ C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\o
 C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\obj\Debug\ImagePre.680A8843.Up2Date
 C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\obj\Debug\Image Preview.dll
 C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\obj\Debug\Image Preview.pdb
+C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.dll
+C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.Shell.dll
+C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.xml
+C:\Users\mdsai\OneDrive\Desktop\ImagePrevDev\IMG102\ImagePreview\Image Preview\bin\Debug\Microsoft.WindowsAPICodePack.Shell.xml
