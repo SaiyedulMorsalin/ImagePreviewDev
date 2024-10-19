@@ -1,55 +1,72 @@
-global imageloader
 
-try (dotnet.loadassembly (getFilenamePath (getThisScriptFilename()) + @"\Image Preview.dll")) catch()
 
-rollout imageloader "Image Browser" width:700 height:700
-(
-    dotNetControl small_dialog "Image_Preview.UserControl1" pos:[0,0] width:700 height:500
 
-    -- Event handler for ThumbnailClicked event
-    
+try(dotnet.loadassembly  (getFilenamePath  (getThisScriptFilename())+@"\Image Preview.dll") )catch() 	
+----------------------------------
+	
+rollout imageloader "small browser" width:240 height:270
+(	
+	dotNetControl small_dialog "Image_Preview.UserControl1"  pos:[0,0] width:480 height:480
+	
 
-    -- EditText to specify file extensions
-    edittext extensions "Extensions:" text:".jpg|.png|"
-    
-    -- Buttons
-    button b01 "Refresh"
+	
+	
+	
+	
+	on imageloader open do
+   (
 
-    button b04 "Show Selected Image"
+	  
+	   --showEvents  small_dialog
+	
+	--small_dialog.Filepath=@"C:\MyAssets\Model library\bed\bed cover pillow\"
+	--small_dialog.Reload()
+	--small_dialog.Select()	   
+	   
+   )
+  
+   edittext extentions "Extentions:" text:".jpg|.png|"
+   
+   button b01 "Refresh"
+   on b01 pressed do 
+   (
+	   
+	   
+	 directoryPath = @"C:\Users\mdsai\OneDrive\Pictures\Screenshots"
 
-    on b01 pressed do 
-    (
-        -- Load images from the file array when Refresh is pressed
-        fileArray = #()
-        append fileArray @"C:\Users\mdsai\OneDrive\Desktop\studio design.png"
-        append fileArray @"C:\Users\mdsai\OneDrive\Desktop\sss.png"
-        append fileArray @"C:\Users\mdsai\OneDrive\Desktop\studio design.png"
 
-        -- Populate the control with images
-        small_dialog.Populate "" fileArray
-        print small_dialog.CurrentItem
-        print small_dialog.name
-    )
+fileArray = getFiles (directoryPath + "\\*.png")
+		
+	   small_dialog.Populate fileArray
+	   
+	   
 
-    on b04 pressed do 
-    (
-        -- Print details of the currently selected item
-        print "Show selected image"
-        print small_dialog.scriptCommand
-        print small_dialog.CurrentItem
-        print small_dialog.CurrentImage
-    )
-    button b02 "Select Directory"
-    on b02 pressed do
-    (
-        -- Update the extensions and populate images from a directory
-        small_dialog.extensions = extensions.text
-        mypath = getSavepath()
-        filearray = #()
-        small_dialog.Populate mypath filearray
-        print "Select Directory...!"
-        print mypath
-    )
+   )
+ 
+   button b02 "Select directory"
+   on b02 pressed do
+   (
+	   small_dialog.extensions = extentions.text
+	   mypath = thePath = getSavepath()
+	   filearray = #()
+	   small_dialog.Populate mypath 
+	   print mypath
+		
+   )
+	
+	on small_dialog ThumbPicked sender args do(
+		
+		
+		print "Thumb Click From Event"
+		print small_dialog.CurrentItem
+		
+		)
+   
 )
 
-CreateDialog imageloader
+
+
+imagedialog = newRolloutFloater "small browser" 500 650
+addRollout  imageloader imagedialog
+
+

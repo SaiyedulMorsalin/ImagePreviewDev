@@ -18,8 +18,8 @@ namespace Image_Preview
 {
     public partial class UserControl1 : UserControl
     {
-        public static string Filepath = @"C:\Users\vn\Desktop";  
-        public string[] LocalImagePaths;
+        
+        public string[] LocalImagePaths = null;
         public static string extensions = ".jpg|.png";              
         public static string saveThumbImages = @"C:\Newfolder";
         private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  
@@ -86,52 +86,49 @@ namespace Image_Preview
             _currentThumbSize = size;
             Reload();  // Reload the images with the new size
         }
-
+        private string FileDirectory = null;
         private async void Reload()
         {
-            
-            await Populate(Filepath, LocalImagePaths);  
+
+            if (LocalImagePaths != null && LocalImagePaths.Length !=0)
+            {
+                await Populate(LocalImagePaths);
+            }
+            if(FileDirectory != null)
+            {
+                await Populate(FileDirectory);
+            }
+
         }
 
 
 
-        public async Task Populate(string path = null, string[] imagePaths = null)
+        
+
+   
+        public async Task Populate(string path)
         {
-
-            Filepath = path;
-            LocalImagePaths = imagePaths;
-            if (Directory.Exists(path) && !string.IsNullOrEmpty(path) && imagePaths != null && imagePaths.Length != 0)
-            {
-                await DirectoryLoad(path);
-                MessageBox.Show($"Showing all images from directory and array list.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await LoadImagesFromArray(imagePaths, false);
-            }
-            else if (imagePaths != null && imagePaths.Length != 0)
-            {
-                await LoadImagesFromArray(imagePaths, true);
-            }
-            else if (Directory.Exists(path) && !string.IsNullOrEmpty(path))
-            {
-                await DirectoryLoad(path);
-            }
-        }
-
-
-        public async Task DirectoryLoad(string path)
-        {
-            DisposeImages();
             flowLayoutPanel1.Controls.Clear();
+            FileDirectory = path;
+            LocalImagePaths = null;
 
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
             FileInfo[] files = directoryInfo.GetFiles();
+         
+
+            
+            var sortedFiles = files.OrderBy(f => f.FullName).ToArray();
+            
+         
+
             string[] extsn = extensions.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (var file in files)
+            foreach (var file in sortedFiles)
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                   
-
+                   Console.WriteLine(file.FullName);
+                  
                     Button customBtn = new Button();
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
                     customBtn.BackgroundImage = thumbnail;
@@ -143,6 +140,7 @@ namespace Image_Preview
                 }
             }
         }
+
         public event EventHandler Clicked;
         public string scriptCommand;
         public string CurrentItem;
@@ -172,22 +170,23 @@ namespace Image_Preview
 
                 ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
 
-                MessageBox.Show($"Thumbnail clicked: {path}", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+               
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        
 
-        public async Task LoadImagesFromArray(string[] imagePaths, bool clearControls)
+
+        public async Task Populate(string[] imagePaths)
         {
-            if (clearControls)
-            {
-                DisposeImages();
-                flowLayoutPanel1.Controls.Clear();
-            }
+
+             Array.Sort(imagePaths);
+
+            this.flowLayoutPanel1.Controls.Clear();
+            LocalImagePaths = imagePaths;
+            FileDirectory = null;
 
             foreach (var imagePath in imagePaths)
             {
@@ -210,12 +209,13 @@ namespace Image_Preview
                 customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-               customBtn.Click += (sender, e) => pickeditem(imagePath,thumbnail);
-            
+                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
+
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
 
+        
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size)
         {
             int targetThumbSize = (int)size; 
@@ -289,6 +289,6 @@ namespace Image_Preview
             Large = 175, 
         }
 
-        
+       
     }
 }
