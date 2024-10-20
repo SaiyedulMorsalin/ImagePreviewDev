@@ -31,17 +31,29 @@ namespace Image_Preview
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UserControl1));
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.pb_star1 = new System.Windows.Forms.PictureBox();
+            this.pb_star2 = new System.Windows.Forms.PictureBox();
+            this.pb_star3 = new System.Windows.Forms.PictureBox();
+            this.pb_star4 = new System.Windows.Forms.PictureBox();
+            this.pb_star5 = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.iconButton1 = new FontAwesome.Sharp.IconButton();
             this.iconButton3 = new FontAwesome.Sharp.IconButton();
+            this.button2 = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.iconButton2 = new FontAwesome.Sharp.IconButton();
             this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star5)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -51,20 +63,77 @@ namespace Image_Preview
             // 
             // flowLayoutPanel1
             // 
-         
-
-
             this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.AutoScroll = true;
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.DimGray;
             this.flowLayoutPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.flowLayoutPanel1.Controls.Add(this.pb_star1);
+            this.flowLayoutPanel1.Controls.Add(this.pb_star2);
+            this.flowLayoutPanel1.Controls.Add(this.pb_star3);
+            this.flowLayoutPanel1.Controls.Add(this.pb_star4);
+            this.flowLayoutPanel1.Controls.Add(this.pb_star5);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(26, 55);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(680, 454);
             this.flowLayoutPanel1.TabIndex = 0;
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
+            // 
+            // pb_star1
+            // 
+            this.pb_star1.Image = global::Image_Preview.Properties.Resources.white_star;
+            this.pb_star1.Location = new System.Drawing.Point(3, 3);
+            this.pb_star1.Name = "pb_star1";
+            this.pb_star1.Size = new System.Drawing.Size(29, 29);
+            this.pb_star1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_star1.TabIndex = 0;
+            this.pb_star1.TabStop = false;
+            this.pb_star1.Click += new System.EventHandler(this.oneStarClick);
+            // 
+            // pb_star2
+            // 
+            this.pb_star2.Image = global::Image_Preview.Properties.Resources.white_star;
+            this.pb_star2.Location = new System.Drawing.Point(38, 3);
+            this.pb_star2.Name = "pb_star2";
+            this.pb_star2.Size = new System.Drawing.Size(29, 29);
+            this.pb_star2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_star2.TabIndex = 1;
+            this.pb_star2.TabStop = false;
+            this.pb_star2.Click += new System.EventHandler(this.twoStarClick);
+            // 
+            // pb_star3
+            // 
+            this.pb_star3.Image = global::Image_Preview.Properties.Resources.white_star;
+            this.pb_star3.Location = new System.Drawing.Point(73, 3);
+            this.pb_star3.Name = "pb_star3";
+            this.pb_star3.Size = new System.Drawing.Size(29, 29);
+            this.pb_star3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_star3.TabIndex = 2;
+            this.pb_star3.TabStop = false;
+            this.pb_star3.Click += new System.EventHandler(this.threeStarClick);
+            // 
+            // pb_star4
+            // 
+            this.pb_star4.Image = global::Image_Preview.Properties.Resources.white_star;
+            this.pb_star4.Location = new System.Drawing.Point(108, 3);
+            this.pb_star4.Name = "pb_star4";
+            this.pb_star4.Size = new System.Drawing.Size(29, 29);
+            this.pb_star4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_star4.TabIndex = 3;
+            this.pb_star4.TabStop = false;
+            this.pb_star4.Click += new System.EventHandler(this.fourStarClick);
+            // 
+            // pb_star5
+            // 
+            this.pb_star5.Image = global::Image_Preview.Properties.Resources.yellow_star;
+            this.pb_star5.Location = new System.Drawing.Point(143, 3);
+            this.pb_star5.Name = "pb_star5";
+            this.pb_star5.Size = new System.Drawing.Size(29, 29);
+            this.pb_star5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_star5.TabIndex = 4;
+            this.pb_star5.TabStop = false;
+            this.pb_star5.Click += new System.EventHandler(this.fiveStarClick);
             // 
             // tableLayoutPanel1
             // 
@@ -153,6 +222,16 @@ namespace Image_Preview
             this.iconButton3.UseVisualStyleBackColor = false;
             this.iconButton3.Click += new System.EventHandler(this.iconButton3_Click);
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(201, 3);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(111, 37);
+            this.button2.TabIndex = 1;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // flowLayoutPanel3
             // 
             this.flowLayoutPanel3.Controls.Add(this.pictureBox1);
@@ -165,13 +244,12 @@ namespace Image_Preview
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.pictureBox1.Image = global::Image_Preview.Properties.Resources.studio_logo1;
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(64, 33);
+            this.pictureBox1.Size = new System.Drawing.Size(64, 31);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
             // iconButton2
@@ -204,16 +282,6 @@ namespace Image_Preview
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click_3);
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(201, 3);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(111, 37);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // UserControl1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -222,6 +290,12 @@ namespace Image_Preview
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UserControl1";
             this.Size = new System.Drawing.Size(709, 552);
+            this.flowLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_star5)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
@@ -239,10 +313,15 @@ namespace Image_Preview
         private FlowLayoutPanel flowLayoutPanel2;
         private FontAwesome.Sharp.IconButton iconButton1;
         private FlowLayoutPanel flowLayoutPanel3;
-        private PictureBox pictureBox1;
         private FontAwesome.Sharp.IconButton iconButton2;
         private FontAwesome.Sharp.IconButton iconButton3;
         private Button button1;
         private Button button2;
+        private PictureBox pictureBox1;
+        private PictureBox pb_star1;
+        private PictureBox pb_star2;
+        private PictureBox pb_star3;
+        private PictureBox pb_star4;
+        private PictureBox pb_star5;
     }
 }

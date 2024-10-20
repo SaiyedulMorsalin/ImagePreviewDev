@@ -114,6 +114,8 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
+    <None Include="Resources\yellow_star.png" />
+    <None Include="Resources\white_star.png" />
     <None Include="Resources\studio_logo.png" />
     <None Include="packages.config" />
   </ItemGroup>

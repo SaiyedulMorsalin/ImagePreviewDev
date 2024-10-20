@@ -87,6 +87,7 @@ namespace Image_Preview
             _currentThumbSize = size;
             Reload();  // Reload the images with the new size
         }
+
         private string FileDirectory = null;
         private async void Reload()
         {
@@ -129,47 +130,57 @@ namespace Image_Preview
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
                     ShellFile shellFile = ShellFile.FromFilePath(file.FullName);
+                    shellFile.Properties.System.Rating.Value = 5;
                     int? rating = (int?)shellFile.Properties.System.Rating.Value;
+
                     int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
+                    Button customBtn = new Button();
+                    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    customBtn.BackgroundImage = thumbnail;
+                    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+                    customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
+                   
+                    flowLayoutPanel1.Controls.Add(customBtn);
 
+                    //if (_currentThumbSize == ThumbNailSize.Large)
+                    //{
 
-                    if (_currentThumbSize == ThumbNailSize.Large)
-                    {
+                    //    Button customBtn = new Button();
+                    //    Label customLabel = new Label();
+                    //    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    //    customBtn.BackgroundImage = thumbnail;
+                    //    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    //    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+                    //    customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                    //    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
+                    //    flowLayoutPanel1.Controls.Add(customBtn);
+                    //}
+                    //else if(_currentThumbSize == ThumbNailSize.Medium){
+                    //    Button customBtn = new Button();
+                    //    Label customLabel = new Label();
+                    //    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    //    customBtn.BackgroundImage = thumbnail;
+                    //    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    //    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+                    //    customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
-                        Button customBtn = new Button();
-                        Label customLabel = new Label();
-                        Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
-                        customBtn.BackgroundImage = thumbnail;
-                        customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                        customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-                        customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                        customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
-                        flowLayoutPanel1.Controls.Add(customBtn);
-                    }
-                    else if(_currentThumbSize == ThumbNailSize.Medium){
-                        Button customBtn = new Button();
-                        Label customLabel = new Label();
-                        Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
-                        customBtn.BackgroundImage = thumbnail;
-                        customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                        customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-                        customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-
-                        customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
-                        flowLayoutPanel1.Controls.Add(customBtn);
-                    }
-                    else
-                    {
-                        Button customBtn = new Button();
-                        Label customLabel = new Label();
-                        Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
-                        customBtn.BackgroundImage = thumbnail;
-                        customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                        customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-                        customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                        customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
-                        flowLayoutPanel1.Controls.Add(customBtn);
-                    }
+                    //    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
+                    //    flowLayoutPanel1.Controls.Add(customBtn);
+                    //}
+                    //else
+                    //{
+                    //    Button customBtn = new Button();
+                    //    Label customLabel = new Label();
+                    //    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    //    customBtn.BackgroundImage = thumbnail;
+                    //    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    //    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+                    //    customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                    //    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
+                    //    flowLayoutPanel1.Controls.Add(customBtn);
+                    //}
                     
                 }
             }
@@ -182,13 +193,7 @@ namespace Image_Preview
         public string maxScriptCode;
         public event ThumbPickedEventHandler ThumbPicked; 
 
-        public void OnThumbnailClick()
-        {
-            
-
-            
-          
-        }
+     
 
         public void pickeditem(string path, Image thumbnail,int star)
         {
@@ -245,7 +250,7 @@ namespace Image_Preview
                 customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
+                //customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
 
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
@@ -346,6 +351,33 @@ namespace Image_Preview
         private async void button2_Click(object sender, EventArgs e)
         {
             await Populate(@"C:\Users\mdsai\OneDrive\Desktop\SirImages");
+        }
+
+       
+
+        private void oneStarClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void fiveStarClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void twoStarClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void threeStarClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void fourStarClick(object sender, EventArgs e)
+        {
+
         }
     }
 }

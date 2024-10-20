@@ -73,9 +73,19 @@ namespace Image_Preview.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap studio_logo1 {
+        internal static System.Drawing.Bitmap white_star {
             get {
-                object obj = ResourceManager.GetObject("studio_logo1", resourceCulture);
+                object obj = ResourceManager.GetObject("white_star", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap yellow_star {
+            get {
+                object obj = ResourceManager.GetObject("yellow_star", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
