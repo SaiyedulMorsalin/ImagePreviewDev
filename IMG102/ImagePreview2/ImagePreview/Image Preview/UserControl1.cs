@@ -21,13 +21,15 @@ namespace Image_Preview
     public partial class UserControl1 : UserControl
     {
 
-        public string[] LocalImagePaths;
+        
         public static string extensions = ".jpg|.png";              
         public static string saveThumbImages = @"C:\Newfolder";
         private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;  
         private ContextMenu menu;
-        private string FileDirectory = null;
+     
         public string CurrentFolderDirectory = null;
+        public string[] LocalImagePaths = null;
+        public string[] CurrentImagePaths = null;
         private bool onRating = false;
 
   
@@ -53,7 +55,7 @@ namespace Image_Preview
             // Create a new ContextMenuStrip and add Sorting options
            
            
-            ToolStripMenuItem rating = new ToolStripMenuItem("Rating", null, async (sender, e) => await PopulateSortedByRating(CurrentFolderDirectory));
+            ToolStripMenuItem rating = new ToolStripMenuItem("Rating", null,  (sender, e) =>  ImageSortByRating());
             //ToolStripMenuItem twostar = new ToolStripMenuItem("2 Rating", null, async (sender, e) => await PopulateSortedByRating(FileDirectory, 2));
             //ToolStripMenuItem threestar = new ToolStripMenuItem("3 Rating", null, async (sender, e) => await PopulateSortedByRating(FileDirectory, 3));
             //ToolStripMenuItem fourstar = new ToolStripMenuItem("4 Rating", null, async (sender, e) => await PopulateSortedByRating(FileDirectory, 4));
@@ -93,11 +95,24 @@ namespace Image_Preview
            Reload();  // Reload the images with the new size
         }
         
+        private async void ImageSortByRating()
+        {
+
+         
+            if ( CurrentFolderDirectory != null)
+            {
+                await PopulateSortedByRating(CurrentFolderDirectory);
+            }
+            else if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
+            {
+                await PopulateSortedByRating(CurrentImagePaths);
+            }
+        }
         private async void Reload()
         {
-            if (LocalImagePaths != null && LocalImagePaths.Length != 0 && !onRating)
+            if (CurrentImagePaths != null && CurrentImagePaths.Length != 0 && !onRating)
             {
-                await Populate(LocalImagePaths);
+                await Populate(CurrentImagePaths);
             }
             if (CurrentFolderDirectory != null && onRating == false)
             {
@@ -107,8 +122,8 @@ namespace Image_Preview
             {
                 await PopulateSortedByRating(CurrentFolderDirectory);
             }
-            if (onRating == true && LocalImagePaths != null && LocalImagePaths.Length != 0 ){
-                await PopulateSortedByRating(LocalImagePaths);
+            if (onRating == true && CurrentImagePaths != null && CurrentImagePaths.Length != 0 ){
+                await PopulateSortedByRating(CurrentImagePaths);
             }
            
 
@@ -127,7 +142,7 @@ namespace Image_Preview
                 ShellFile shellFile = ShellFile.FromFilePath(f.FullName);
                 int? rating = (int?)shellFile.Properties.System.Rating.Value;
                 int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
-                return stars > 0;
+                return stars >= 0;
             })
             .OrderByDescending(f =>
             {
@@ -166,7 +181,7 @@ namespace Image_Preview
                 ShellFile shellFile = ShellFile.FromFilePath(path);
                 int? rating = (int?)shellFile.Properties.System.Rating.Value;
                 int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
-                return stars > 0;
+                return stars >= 0;
             })
             .OrderByDescending(path =>
             {
@@ -267,7 +282,7 @@ namespace Image_Preview
              Array.Sort(imagePaths);
 
             this.flowLayoutPanel1.Controls.Clear();
-            LocalImagePaths = imagePaths;
+            CurrentImagePaths = imagePaths;
             onRating = false;
 
             foreach (var imagePath in imagePaths)
@@ -367,8 +382,10 @@ namespace Image_Preview
 
         private async void button1_Click_3(object sender, EventArgs e)
         {
+
+            string[] paths = { @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be - Copy (2).jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be - Copy.jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be.jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_4ae1d9d6 - Copy (2).jpg" };
             await Populate(@"C:\Users\mdsai\OneDrive\Desktop\SirImages");
-            //await Populate(@"C:\Users\mdsai\OneDrive\Desktop\SirImages");
+            //await Populate(paths);
         }
 
         private void fiveStarClick(object sender, EventArgs e)

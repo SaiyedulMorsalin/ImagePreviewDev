@@ -32,10 +32,10 @@ rollout imageloader "small browser" width:240 height:270
    (
 	   
 	   
-	 directoryPath = @"C:\Users\mdsai\OneDrive\Desktop\SirImages"
+	 directoryPath = @"C:\Users\mdsai\OneDrive\Desktop\"
 
 
-fileArray = getFiles (directoryPath + "\\*.jpg")
+	fileArray = getFiles (directoryPath + "\\*.jpg")
 		
 	   small_dialog.Populate fileArray
 	   
