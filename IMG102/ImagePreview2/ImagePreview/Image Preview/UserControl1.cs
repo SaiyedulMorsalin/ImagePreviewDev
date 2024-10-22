@@ -16,6 +16,7 @@ using System.Globalization;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using Image_Preview.Properties;
+using Path = System.IO.Path;
 namespace Image_Preview
 {
     public partial class UserControl1 : UserControl
@@ -137,9 +138,12 @@ namespace Image_Preview
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
             FileInfo[] files = directoryInfo.GetFiles();
             onRating = true;
-            // Filter and sort files by rating in descending order
+
             var filteredFiles = files.Where(f =>
             {
+                if (Path.GetExtension(f.FullName).Equals(".png", StringComparison.OrdinalIgnoreCase))
+                    return false;
+
                 ShellFile shellFile = ShellFile.FromFilePath(f.FullName);
                 int? rating = (int?)shellFile.Properties.System.Rating.Value;
                 int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
@@ -156,29 +160,33 @@ namespace Image_Preview
 
             foreach (var file in filteredFiles)
             {
-                ShellFile shellFile = ShellFile.FromFilePath(file.FullName);
-                int? rating = (int?)shellFile.Properties.System.Rating.Value;
-                int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
-
-                Button customBtn = new Button();
-                Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
-                customBtn.BackgroundImage = thumbnail;
-                customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-                customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
-                flowLayoutPanel1.Controls.Add(customBtn);
+                // Optimize thumbnail loading with async method
+                using (Button customBtn = new Button())
+                {
+                    Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
+                    customBtn.BackgroundImage = thumbnail;
+                    customBtn.Size = new Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    customBtn.BackgroundImageLayout = ImageLayout.Stretch;
+                    customBtn.FlatStyle = FlatStyle.Flat;
+                    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                    flowLayoutPanel1.Controls.Add(customBtn);
+                }
             }
 
+            // Trigger garbage collection after thumbnails are loaded
+            
         }
+
         private async Task PopulateSortedByRating(string[] imagePaths)
         {
             flowLayoutPanel1.Controls.Clear();
             onRating = true;
 
-            // Filter and sort files by rating in descending order
             var filteredFiles = imagePaths.Where(path =>
             {
+                if (Path.GetExtension(path).Equals(".png", StringComparison.OrdinalIgnoreCase))
+                    return false;
+
                 ShellFile shellFile = ShellFile.FromFilePath(path);
                 int? rating = (int?)shellFile.Properties.System.Rating.Value;
                 int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
@@ -190,25 +198,26 @@ namespace Image_Preview
                 int? rating = (int?)shellFile.Properties.System.Rating.Value;
                 return (rating.HasValue) ? rating.Value : 0;
             })
-            .ThenBy(path => path) // Secondary sorting by file name
+            .ThenBy(path => path)
             .ToArray();
 
-            // Create buttons for each filtered image
             foreach (var imagePath in filteredFiles)
             {
-                ShellFile shellFile = ShellFile.FromFilePath(imagePath);
-                int? rating = (int?)shellFile.Properties.System.Rating.Value;
-                int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
-
-                Button customBtn = new Button();
-                Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
-                customBtn.BackgroundImage = thumbnail;
-                customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-                customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail, stars);
-                flowLayoutPanel1.Controls.Add(customBtn);
+                // Use 'using' to ensure buttons are disposed properly
+                using (Button customBtn = new Button())
+                {
+                    Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
+                    customBtn.BackgroundImage = thumbnail;
+                    customBtn.Size = new Size((int)_currentThumbSize, (int)_currentThumbSize);
+                    customBtn.BackgroundImageLayout = ImageLayout.Stretch;
+                    customBtn.FlatStyle = FlatStyle.Flat;
+                    customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
+                    flowLayoutPanel1.Controls.Add(customBtn);
+                }
             }
+
+            // Trigger garbage collection after thumbnails are loaded
+           
         }
 
 
@@ -235,48 +244,18 @@ namespace Image_Preview
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                    ShellFile shellFile = ShellFile.FromFilePath(file.FullName);
-                    int? rating = (int?)shellFile.Properties.System.Rating.Value;
-                    int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
+                    
                     Button customBtn = new Button();
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
                     customBtn.BackgroundImage = thumbnail;
                     customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                     customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail, stars);
+                    customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
                     flowLayoutPanel1.Controls.Add(customBtn);
                 }
             }
         }
-
-        public event EventHandler Clicked;
-        public string scriptCommand;
-        public string CurrentItem;
-        public Image CurrentImage;
-        public string maxScriptCode;
-        public event ThumbPickedEventHandler ThumbPicked;
-
-
-
-        public void pickeditem(string path, Image thumbnail, int star)
-        {
-
-            //IGlobal global = GlobalInterface.Instance;
-            CurrentItem = path;
-            CurrentImage = thumbnail;
-
-            //scriptCommand = $"print \"{path}\"";
-            //Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
-            //global.ExecuteMAXScriptScript(scriptCommand, source, true, null, true);
-
-            ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
-
-            //MessageBox.Show($"Star: {star} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-        }
-
-
         public async Task Populate(string[] imagePaths)
         {
 
@@ -284,6 +263,7 @@ namespace Image_Preview
 
             this.flowLayoutPanel1.Controls.Clear();
             CurrentImagePaths = imagePaths;
+            CurrentFolderDirectory = null;
             onRating = false;
 
             foreach (var imagePath in imagePaths)
@@ -307,11 +287,41 @@ namespace Image_Preview
                 customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail, 5);
+                customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
 
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
+
+
+        public event EventHandler Clicked;
+        public string scriptCommand;
+        public string CurrentItem;
+        public Image CurrentImage;
+        public string maxScriptCode;
+        public event ThumbPickedEventHandler ThumbPicked;
+
+
+
+        public void pickeditem(string path, Image thumbnail)
+        {
+
+            //IGlobal global = GlobalInterface.Instance;
+            CurrentItem = path;
+            CurrentImage = thumbnail;
+
+            //scriptCommand = $"print \"{path}\"";
+            //Autodesk.Max.MAXScript.ScriptSource source = Autodesk.Max.MAXScript.ScriptSource.Dynamic;
+            //global.ExecuteMAXScriptScript(scriptCommand, source, true, null, true);
+
+            ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
+
+            //MessageBox.Show($"Star: {star} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+        }
+
+
+        
 
 
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size)
@@ -385,64 +395,64 @@ namespace Image_Preview
             Large = 175,
         }
 
-        private async void button1_Click_3(object sender, EventArgs e)
-        {
+        //private async void button1_Click_3(object sender, EventArgs e)
+        //{
 
-            //string[] paths = { @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be - Copy (2).jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be - Copy.jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be.jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_4ae1d9d6 - Copy (2).jpg" };
-            await Populate(@"C:\Users\mdsai\OneDrive\Desktop\SirImages");
-            //await Populate(paths);
-        }
+        //    //string[] paths = { @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be - Copy (2).jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be - Copy.jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_0d27f5be.jpg", @"C:\Users\mdsai\OneDrive\Desktop\SirImages\WhatsApp Image 2024-10-06 at 21.50.07_4ae1d9d6 - Copy (2).jpg" };
+        //    await Populate(@"C:\Users\mdsai\OneDrive\Desktop\SirImages\");
+        //    //await Populate(paths);
+        //}
 
-        private void fiveStarClick(object sender, EventArgs e)
-        {
-            pb_star1.Image = Resources.yellow_star;
-            pb_star2.Image = Resources.yellow_star;
-            pb_star3.Image = Resources.yellow_star;
-            pb_star4.Image = Resources.yellow_star;
-            pb_star5.Image = Resources.yellow_star;
-            if(CurrentItem != null)
-            {
-                ShellFile shellFile = ShellFile.FromFilePath(CurrentItem);
-                shellFile.Properties.System.Rating.Value = 5;
-                Reload();
-            }
-        }
+        //private void fiveStarClick(object sender, EventArgs e)
+        //{
+        //    pb_star1.Image = Resources.yellow_star;
+        //    pb_star2.Image = Resources.yellow_star;
+        //    pb_star3.Image = Resources.yellow_star;
+        //    pb_star4.Image = Resources.yellow_star;
+        //    pb_star5.Image = Resources.yellow_star;
+        //    if(CurrentItem != null)
+        //    {
+        //        ShellFile shellFile = ShellFile.FromFilePath(CurrentItem);
+        //        shellFile.Properties.System.Rating.Value = 5;
+        //        Reload();
+        //    }
+        //}
 
-        private void fourStarClick(object sender, EventArgs e)
-        {
-            pb_star1.Image = Resources.yellow_star;
-            pb_star2.Image = Resources.yellow_star;
-            pb_star3.Image = Resources.yellow_star;
-            pb_star4.Image = Resources.yellow_star;
-            pb_star5.Image = Resources.white_star;
-        }
+        //private void fourStarClick(object sender, EventArgs e)
+        //{
+        //    pb_star1.Image = Resources.yellow_star;
+        //    pb_star2.Image = Resources.yellow_star;
+        //    pb_star3.Image = Resources.yellow_star;
+        //    pb_star4.Image = Resources.yellow_star;
+        //    pb_star5.Image = Resources.white_star;
+        //}
 
-        private void threeStarClick(object sender, EventArgs e)
-        {
-            pb_star1.Image = Resources.yellow_star;
-            pb_star2.Image = Resources.yellow_star;
-            pb_star3.Image = Resources.yellow_star;
-            pb_star4.Image = Resources.white_star;
-            pb_star5.Image = Resources.white_star;
-        }
+        //private void threeStarClick(object sender, EventArgs e)
+        //{
+        //    pb_star1.Image = Resources.yellow_star;
+        //    pb_star2.Image = Resources.yellow_star;
+        //    pb_star3.Image = Resources.yellow_star;
+        //    pb_star4.Image = Resources.white_star;
+        //    pb_star5.Image = Resources.white_star;
+        //}
 
-        private void twoStarClick(object sender, EventArgs e)
-        {
-            pb_star1.Image = Resources.yellow_star;
-            pb_star2.Image = Resources.yellow_star;
-            pb_star3.Image = Resources.white_star;
-            pb_star4.Image = Resources.white_star;
-            pb_star5.Image = Resources.white_star;
-        }
+        //private void twoStarClick(object sender, EventArgs e)
+        //{
+        //    pb_star1.Image = Resources.yellow_star;
+        //    pb_star2.Image = Resources.yellow_star;
+        //    pb_star3.Image = Resources.white_star;
+        //    pb_star4.Image = Resources.white_star;
+        //    pb_star5.Image = Resources.white_star;
+        //}
 
-        private void oneStarClick(object sender, EventArgs e)
-        {
-            pb_star1.Image = Resources.yellow_star;
-            pb_star2.Image = Resources.white_star;
-            pb_star3.Image = Resources.white_star;
-            pb_star4.Image = Resources.white_star;
-            pb_star5.Image = Resources.white_star;
+        //private void oneStarClick(object sender, EventArgs e)
+        //{
+        //    pb_star1.Image = Resources.yellow_star;
+        //    pb_star2.Image = Resources.white_star;
+        //    pb_star3.Image = Resources.white_star;
+        //    pb_star4.Image = Resources.white_star;
+        //    pb_star5.Image = Resources.white_star;
 
-        }
+        //}
     }
 }

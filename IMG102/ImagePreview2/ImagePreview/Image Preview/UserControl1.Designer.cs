@@ -37,27 +37,14 @@ namespace Image_Preview
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.iconButton1 = new FontAwesome.Sharp.IconButton();
             this.iconButton3 = new FontAwesome.Sharp.IconButton();
-            this.button1 = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.iconButton2 = new FontAwesome.Sharp.IconButton();
-            this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
-            this.pb_star1 = new System.Windows.Forms.PictureBox();
-            this.pb_star2 = new System.Windows.Forms.PictureBox();
-            this.pb_star3 = new System.Windows.Forms.PictureBox();
-            this.pb_star4 = new System.Windows.Forms.PictureBox();
-            this.pb_star5 = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.flowLayoutPanel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star5)).BeginInit();
             this.SuspendLayout();
             // 
             // flowLayoutPanel1
@@ -81,7 +68,6 @@ namespace Image_Preview
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 96.61495F));
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel4, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -112,7 +98,6 @@ namespace Image_Preview
             // 
             this.flowLayoutPanel2.Controls.Add(this.iconButton1);
             this.flowLayoutPanel2.Controls.Add(this.iconButton3);
-            this.flowLayoutPanel2.Controls.Add(this.button1);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(208, 6);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -161,16 +146,6 @@ namespace Image_Preview
             this.iconButton3.UseVisualStyleBackColor = false;
             this.iconButton3.Click += new System.EventHandler(this.iconButton3_Click);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(201, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(94, 31);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_3);
-            // 
             // flowLayoutPanel3
             // 
             this.flowLayoutPanel3.Controls.Add(this.pictureBox1);
@@ -212,73 +187,6 @@ namespace Image_Preview
             this.iconButton2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.iconButton2.UseVisualStyleBackColor = false;
             // 
-            // flowLayoutPanel4
-            // 
-            this.flowLayoutPanel4.Controls.Add(this.pb_star1);
-            this.flowLayoutPanel4.Controls.Add(this.pb_star2);
-            this.flowLayoutPanel4.Controls.Add(this.pb_star3);
-            this.flowLayoutPanel4.Controls.Add(this.pb_star4);
-            this.flowLayoutPanel4.Controls.Add(this.pb_star5);
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(26, 515);
-            this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(200, 34);
-            this.flowLayoutPanel4.TabIndex = 2;
-            // 
-            // pb_star1
-            // 
-            this.pb_star1.Image = global::Image_Preview.Properties.Resources.white_star;
-            this.pb_star1.Location = new System.Drawing.Point(3, 3);
-            this.pb_star1.Name = "pb_star1";
-            this.pb_star1.Size = new System.Drawing.Size(33, 31);
-            this.pb_star1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pb_star1.TabIndex = 0;
-            this.pb_star1.TabStop = false;
-            this.pb_star1.Click += new System.EventHandler(this.oneStarClick);
-            // 
-            // pb_star2
-            // 
-            this.pb_star2.Image = global::Image_Preview.Properties.Resources.white_star;
-            this.pb_star2.Location = new System.Drawing.Point(42, 3);
-            this.pb_star2.Name = "pb_star2";
-            this.pb_star2.Size = new System.Drawing.Size(33, 31);
-            this.pb_star2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pb_star2.TabIndex = 1;
-            this.pb_star2.TabStop = false;
-            this.pb_star2.Click += new System.EventHandler(this.twoStarClick);
-            // 
-            // pb_star3
-            // 
-            this.pb_star3.Image = global::Image_Preview.Properties.Resources.white_star;
-            this.pb_star3.Location = new System.Drawing.Point(81, 3);
-            this.pb_star3.Name = "pb_star3";
-            this.pb_star3.Size = new System.Drawing.Size(33, 31);
-            this.pb_star3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pb_star3.TabIndex = 2;
-            this.pb_star3.TabStop = false;
-            this.pb_star3.Click += new System.EventHandler(this.threeStarClick);
-            // 
-            // pb_star4
-            // 
-            this.pb_star4.Image = global::Image_Preview.Properties.Resources.white_star;
-            this.pb_star4.Location = new System.Drawing.Point(120, 3);
-            this.pb_star4.Name = "pb_star4";
-            this.pb_star4.Size = new System.Drawing.Size(33, 31);
-            this.pb_star4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pb_star4.TabIndex = 3;
-            this.pb_star4.TabStop = false;
-            this.pb_star4.Click += new System.EventHandler(this.fourStarClick);
-            // 
-            // pb_star5
-            // 
-            this.pb_star5.Image = global::Image_Preview.Properties.Resources.white_star;
-            this.pb_star5.Location = new System.Drawing.Point(159, 3);
-            this.pb_star5.Name = "pb_star5";
-            this.pb_star5.Size = new System.Drawing.Size(33, 31);
-            this.pb_star5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pb_star5.TabIndex = 4;
-            this.pb_star5.TabStop = false;
-            this.pb_star5.Click += new System.EventHandler(this.fiveStarClick);
-            // 
             // UserControl1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -292,12 +200,6 @@ namespace Image_Preview
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.flowLayoutPanel4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_star5)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -313,12 +215,5 @@ namespace Image_Preview
         private PictureBox pictureBox1;
         private FontAwesome.Sharp.IconButton iconButton2;
         private FontAwesome.Sharp.IconButton iconButton3;
-        private Button button1;
-        private FlowLayoutPanel flowLayoutPanel4;
-        private PictureBox pb_star1;
-        private PictureBox pb_star2;
-        private PictureBox pb_star3;
-        private PictureBox pb_star4;
-        private PictureBox pb_star5;
     }
 }
