@@ -63,6 +63,26 @@ namespace Image_Preview.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap large {
+            get {
+                object obj = ResourceManager.GetObject("large", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap meduim {
+            get {
+                object obj = ResourceManager.GetObject("meduim", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap studio_logo {
             get {
                 object obj = ResourceManager.GetObject("studio_logo", resourceCulture);
@@ -76,6 +96,16 @@ namespace Image_Preview.Properties {
         internal static System.Drawing.Bitmap studio_logo1 {
             get {
                 object obj = ResourceManager.GetObject("studio_logo1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tiny {
+            get {
+                object obj = ResourceManager.GetObject("tiny", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

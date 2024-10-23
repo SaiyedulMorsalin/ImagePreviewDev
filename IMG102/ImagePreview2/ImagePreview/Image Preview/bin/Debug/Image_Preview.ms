@@ -48,7 +48,6 @@ rollout imageloader "small browser" width:240 height:270
    (
 	   small_dialog.extensions = extentions.text
 	   mypath = thePath = getSavepath()
-	   filearray = #()
 	   small_dialog.Populate mypath 
 	   print mypath
 		
