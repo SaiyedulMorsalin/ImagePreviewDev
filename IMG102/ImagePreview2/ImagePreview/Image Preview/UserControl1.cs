@@ -17,6 +17,7 @@ using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using Image_Preview.Properties;
 using Path = System.IO.Path;
+using System.Windows.Media;
 namespace Image_Preview
 {
     public partial class UserControl1 : UserControl
@@ -30,7 +31,7 @@ namespace Image_Preview
 
         public string CurrentFolderDirectory = null;
         public string[] CurrentImagePaths = null;
-    
+        private bool sortByRatingisTrue = false;
 
 
         public UserControl1()
@@ -40,15 +41,19 @@ namespace Image_Preview
 
             ContextMenuStrip contextMenuStripView = new ContextMenuStrip();
             ContextMenuStrip contextMenuStripSort = new ContextMenuStrip();
-           
             
+
             ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", Resources.tiny, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
             ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", Resources.meduim, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
             ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", Resources.large, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
-         
-            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { tinyMenuItem, mediumMenuItem, largeMenuItem });
-
            
+
+
+
+
+            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { tinyMenuItem, mediumMenuItem, largeMenuItem });
+            ToolStripMenuItem sortByRating = new ToolStripMenuItem("Rating", Resources.yellow_star,  (sender, e) =>  ImageSortByRating());
+            contextMenuStripSort.Items.AddRange(new ToolStripMenuItem[] { sortByRating });
             this.iconButton1.ContextMenuStrip = contextMenuStripView;
             this.iconButton3.ContextMenuStrip = contextMenuStripSort;
 
@@ -82,19 +87,15 @@ namespace Image_Preview
             Reload();  
         }
 
-        private async void ImageSortByRating()
+        private  void ImageSortByRating()
         {
 
+            sortByRatingisTrue  = true;
+            Reload();
+            sortByRatingisTrue = false;
 
-            //if (CurrentFolderDirectory != null)
-            //{
-            //    await PopulateSortedByRating(CurrentFolderDirectory);
-            //}
-            //else if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
-            //{
-            //    await PopulateSortedByRating(CurrentImagePaths);
-            //}
         }
+      
         private async void Reload()
         {
             if (CurrentImagePaths != null && CurrentImagePaths.Length != 0 )
@@ -129,6 +130,26 @@ namespace Image_Preview
 
             var sortedFiles = files.OrderBy(f => f.FullName).ToArray();
 
+            if (sortByRatingisTrue == true)
+            {
+                 sortedFiles = files.Where(f =>
+                {
+                    if (Path.GetExtension(f.FullName).Equals(".png", StringComparison.OrdinalIgnoreCase))
+                        return false;
+                    ShellFile shellFile = ShellFile.FromFilePath(f.FullName);
+                    int? rating = (int?)shellFile.Properties.System.Rating.Value;
+                    int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
+                    return stars >= 0;
+                })
+          .OrderByDescending(f =>
+          {
+              ShellFile shellFile = ShellFile.FromFilePath(f.FullName);
+              int? rating = (int?)shellFile.Properties.System.Rating.Value;
+              return (rating.HasValue) ? rating.Value : 0;
+          })
+          .ThenBy(f => f.FullName)
+          .ToArray();
+            }
 
             string[] extsn = extensions.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -136,7 +157,7 @@ namespace Image_Preview
             {
                 if (extsn.Any(ext => file.Extension.ToLower().Contains(ext.ToLower())))
                 {
-                    
+
                     Button customBtn = new Button();
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
                     customBtn.BackgroundImage = thumbnail;
@@ -144,10 +165,25 @@ namespace Image_Preview
                     customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                     customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
+                    ContextMenuStrip contextMenuStripRightClick = new ContextMenuStrip();
+                    ToolStripMenuItem setRating = new ToolStripMenuItem("Rating", Resources.yellow_star);
+                    ToolStripMenuItem fiveStar = new ToolStripMenuItem("5 Star", Resources.yellow_star, (sender, e) => SetImageRating(5, file.FullName));
+                    ToolStripMenuItem fourStar = new ToolStripMenuItem("4 Star", Resources.yellow_star, (sender, e) => SetImageRating( 4,file.FullName));
+                    ToolStripMenuItem threeStar = new ToolStripMenuItem("3 Star", Resources.yellow_star, (sender, e) => SetImageRating(3, file.FullName));
+                    setRating.DropDownItems.Add(fiveStar);
+                    setRating.DropDownItems.Add(fourStar);
+                    setRating.DropDownItems.Add(threeStar);
+                    ToolStripMenuItem item2 = new ToolStripMenuItem("Option 2", null);
+                    contextMenuStripRightClick.Items.AddRange(new ToolStripItem[] { setRating, item2 });
+                    customBtn.ContextMenuStrip = contextMenuStripRightClick;
+
                     flowLayoutPanel1.Controls.Add(customBtn);
+
                 }
             }
         }
+        
+
         public async Task Populate(string[] imagePaths)
         {
 
@@ -156,15 +192,39 @@ namespace Image_Preview
             this.flowLayoutPanel1.Controls.Clear();
             CurrentImagePaths = imagePaths;
             CurrentFolderDirectory = null;
-            
+            var sortedFiles = imagePaths.OrderBy(path => path).ToArray();
+            if (sortByRatingisTrue == true)
+            {
+                sortedFiles = imagePaths.Where(path =>
+            {
+                if (Path.GetExtension(path).Equals(".png", StringComparison.OrdinalIgnoreCase))
+                    return false;
+                ShellFile shellFile = ShellFile.FromFilePath(path);
+                int? rating = (int?)shellFile.Properties.System.Rating.Value;
+                int stars = (rating.HasValue) ? rating.Value / 20 + 1 : 0;
+                return stars >= 0;
+            })
+      .OrderByDescending(path =>
+      {
+          ShellFile shellFile = ShellFile.FromFilePath(path);
+          int? rating = (int?)shellFile.Properties.System.Rating.Value;
+          return (rating.HasValue) ? rating.Value : 0;
+      })
+      .ThenBy(path => path)
+      .ToArray();
 
-            foreach (var imagePath in imagePaths)
+            }
+
+
+
+            foreach (var imagePath in sortedFiles)
             {
                 if (!File.Exists(imagePath))
                 {
 
                     continue;
                 }
+             
 
                 string[] extsn = extensions.Split('|', (char)StringSplitOptions.RemoveEmptyEntries);
                 if (!extsn.Any(ext => imagePath.ToLower().EndsWith(ext.ToLower())))
@@ -180,7 +240,17 @@ namespace Image_Preview
                 customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                 customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
-
+                ContextMenuStrip contextMenuStripRightClick = new ContextMenuStrip();
+                ToolStripMenuItem setRating = new ToolStripMenuItem("Rating", Resources.yellow_star);
+                ToolStripMenuItem fiveStar = new ToolStripMenuItem("5 Star", Resources.yellow_star, (sender, e) => SetImageRating(5, imagePath));
+                ToolStripMenuItem fourStar = new ToolStripMenuItem("4 Star", Resources.yellow_star, (sender, e) => SetImageRating(4, imagePath));
+                ToolStripMenuItem threeStar = new ToolStripMenuItem("3 Star", Resources.yellow_star, (sender, e) => SetImageRating(3, imagePath));
+                setRating.DropDownItems.Add(fiveStar);
+                setRating.DropDownItems.Add(fourStar);
+                setRating.DropDownItems.Add(threeStar);
+                ToolStripMenuItem item2 = new ToolStripMenuItem("Option 2", null);
+                contextMenuStripRightClick.Items.AddRange(new ToolStripItem[] { setRating, item2 });
+                customBtn.ContextMenuStrip = contextMenuStripRightClick;
                 flowLayoutPanel1.Controls.Add(customBtn);
             }
         }
@@ -275,7 +345,33 @@ namespace Image_Preview
             Medium = 100,
             Large = 175,
         }
+        public static void SetImageRating(int rating, string path)
+        {
+            try
+            {
+                ShellFile shellFile = ShellFile.FromFilePath(path);
+                int rate = (rating) * 20-1;
+                shellFile.Properties.System.Rating.Value = (uint?)rate;
+            }
+           
+            catch (Exception ex)
+    {
+                MessageBox.Show($"Failed to set rating: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-    
+
+
+        }
+        private async void button1_Click_3(object sender, EventArgs e)
+        {
+            //await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
+            string[] paths = { @"C:\Users\mdsai\OneDrive\Desktop\errors.jpg", @"C:\Users\mdsai\OneDrive\Desktop\back2.jpg", @"C:\Users\mdsai\OneDrive\Desktop\errors.jpg", @"C:\Users\mdsai\OneDrive\Desktop\dll_prop.jpg" };
+            await Populate(paths);
+        }
+
+        private void button1_ContextMenuStripChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
