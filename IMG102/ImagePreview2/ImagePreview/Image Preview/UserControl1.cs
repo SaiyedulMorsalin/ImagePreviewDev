@@ -362,16 +362,16 @@ namespace Image_Preview
 
 
         }
-        private async void button1_Click_3(object sender, EventArgs e)
-        {
-            //await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
-            string[] paths = { @"C:\Users\mdsai\OneDrive\Desktop\errors.jpg", @"C:\Users\mdsai\OneDrive\Desktop\back2.jpg", @"C:\Users\mdsai\OneDrive\Desktop\errors.jpg", @"C:\Users\mdsai\OneDrive\Desktop\dll_prop.jpg" };
-            await Populate(paths);
-        }
+        
 
         private void button1_ContextMenuStripChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void textBox1_Enter(object sender, EventArgs e)
+        {
+          
         }
     }
 }

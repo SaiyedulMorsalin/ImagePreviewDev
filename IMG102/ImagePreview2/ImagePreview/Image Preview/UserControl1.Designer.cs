@@ -37,7 +37,7 @@ namespace Image_Preview
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.iconButton1 = new FontAwesome.Sharp.IconButton();
             this.iconButton3 = new FontAwesome.Sharp.IconButton();
-            this.button1 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.iconButton2 = new FontAwesome.Sharp.IconButton();
@@ -82,8 +82,8 @@ namespace Image_Preview
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.51709F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.48291F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 36.70134F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 63.29866F));
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel2, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel3, 0, 0);
             this.tableLayoutPanel2.Location = new System.Drawing.Point(26, 3);
@@ -99,11 +99,11 @@ namespace Image_Preview
             // 
             this.flowLayoutPanel2.Controls.Add(this.iconButton1);
             this.flowLayoutPanel2.Controls.Add(this.iconButton3);
-            this.flowLayoutPanel2.Controls.Add(this.button1);
+            this.flowLayoutPanel2.Controls.Add(this.textBox1);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(171, 6);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(253, 6);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(502, 38);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(420, 38);
             this.flowLayoutPanel2.TabIndex = 0;
             // 
             // iconButton1
@@ -141,23 +141,21 @@ namespace Image_Preview
             this.iconButton3.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.iconButton3.Location = new System.Drawing.Point(102, 3);
             this.iconButton3.Name = "iconButton3";
-            this.iconButton3.Size = new System.Drawing.Size(93, 33);
+            this.iconButton3.Size = new System.Drawing.Size(80, 33);
             this.iconButton3.TabIndex = 0;
             this.iconButton3.Text = "Sort";
             this.iconButton3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.iconButton3.UseVisualStyleBackColor = false;
             this.iconButton3.Click += new System.EventHandler(this.iconButton3_Click);
             // 
-            // button1
+            // textBox1
             // 
-            this.button1.Location = new System.Drawing.Point(201, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(103, 33);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.ContextMenuStripChanged += new System.EventHandler(this.button1_ContextMenuStripChanged);
-            this.button1.Click += new System.EventHandler(this.button1_Click_3);
+            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(188, 3);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(164, 29);
+            this.textBox1.TabIndex = 1;
+            this.textBox1.Enter += new System.EventHandler(this.textBox1_Enter);
             // 
             // flowLayoutPanel3
             // 
@@ -166,7 +164,7 @@ namespace Image_Preview
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(6, 6);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(159, 38);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(241, 38);
             this.flowLayoutPanel3.TabIndex = 1;
             // 
             // pictureBox1
@@ -211,6 +209,7 @@ namespace Image_Preview
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel2.PerformLayout();
             this.flowLayoutPanel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -228,6 +227,6 @@ namespace Image_Preview
         private PictureBox pictureBox1;
         private FontAwesome.Sharp.IconButton iconButton2;
         private FontAwesome.Sharp.IconButton iconButton3;
-        private Button button1;
+        private TextBox textBox1;
     }
 }
