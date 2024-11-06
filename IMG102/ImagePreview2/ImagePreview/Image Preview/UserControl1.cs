@@ -82,15 +82,7 @@ namespace Image_Preview
                 this.iconButton1.ContextMenuStrip.Show(this.iconButton1, e.Location);
             }
         }
-        public void RemoveText(object sender, EventArgs e)
-        {
-
-        }
-
-        public void AddText(object sender, EventArgs e)
-        {
-
-        }
+        
         private void iconButton2_MouseDown(object sender, MouseEventArgs e)
         {
 
@@ -117,13 +109,13 @@ namespace Image_Preview
       
         public async void Reload()
         {
-            if (CurrentImagePaths != null && CurrentImagePaths.Length != 0 )
+            if (CurrentImagePathsForReadonly != null && CurrentImagePathsForReadonly.Length != 0 )
             {
-                await Populate(CurrentImagePaths);
+                await Populate(CurrentImagePathsForReadonly);
             }
-            if (CurrentFolderDirectory != null )
+            if (CurrentFolderDirectoryForReadonly != null )
             {
-                await Populate(CurrentFolderDirectory);
+                await Populate(CurrentFolderDirectoryForReadonly);
             }
             
 
@@ -133,33 +125,41 @@ namespace Image_Preview
 
         public async void SearchLoad(string searchText)
         {
-            if (!string.IsNullOrEmpty(searchText))
-            {
-              
-                if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
-                {
-                    string[] searchImagePaths = CurrentImagePaths;
-                    var filteredPaths = searchImagePaths
-                        .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchText))
-                        .ToArray();
-                    await Populate(filteredPaths);
-                }
-                // Filter by file name for files in CurrentFolderDirectory
-                else if (!string.IsNullOrEmpty(CurrentFolderDirectory))
-                {
-                    var currentSearcDirectory = CurrentFolderDirectory;
-                    var directoryInfo = new DirectoryInfo(currentSearcDirectory);
-                    var filteredFiles = directoryInfo.GetFiles()
-                        .Where(file => Path.GetFileNameWithoutExtension(file.FullName).ToLower().Contains(searchText))
-                        .Select(file => file.FullName)
-                        .ToArray();
-                    await Populate(filteredFiles);
-                }
-            }
+           
             if (string.IsNullOrEmpty(searchText))
             {
+               
                 Reload();
+                return;
             }
+            string[] filteredPaths = null;
+
+           
+            if (CurrentImagePaths != null && CurrentImagePaths.Length > 0)
+            {
+                filteredPaths = CurrentImagePaths
+                    .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchText.ToLower()))
+                    .ToArray();
+            }
+           
+            else if (!string.IsNullOrEmpty(CurrentFolderDirectoryForReadonly))
+            {
+                var directoryInfo = new DirectoryInfo(CurrentFolderDirectoryForReadonly);
+                filteredPaths = directoryInfo.GetFiles()
+                    .Where(file => Path.GetFileNameWithoutExtension(file.Name).ToLower().Contains(searchText.ToLower()))
+                    .Select(file => file.FullName)
+                    .ToArray();
+            }
+            if (filteredPaths != null && filteredPaths.Length > 0)
+            {
+                await Populate(filteredPaths);
+            }
+            else {
+                flowLayoutPanel1.Controls.Clear();
+                
+
+            }
+            
         }
 
 
@@ -167,12 +167,16 @@ namespace Image_Preview
 
 
 
-        public  string CurrentFolderDirectory;
+
+        public string CurrentFolderDirectory;
         public string CurrentFolderDirectoryForReadonly;
         private bool isFirstCall = true;
         public void FirstCall(bool val,string path)
         {
-            CurrentFolderDirectoryForReadonly = path;
+            if (val)
+            {
+                CurrentFolderDirectoryForReadonly = path;
+            }
         }
         public async Task Populate(string path)
         {
@@ -248,17 +252,36 @@ namespace Image_Preview
                 }
             }
         }
-        
 
+
+        public string [] CurrentImagePathsForReadonly;
+        private bool isFirstCallImagePaths = true;
+        public void FirstCallForImagePaths(bool val, string [] CurrentImagePaths)
+        {
+            if (val)
+            {
+                CurrentImagePathsForReadonly = CurrentImagePaths;
+            }
+            
+        }
         public async Task Populate(string[] imagePaths)
         {
 
             Array.Sort(imagePaths);
 
             this.flowLayoutPanel1.Controls.Clear();
-            CurrentImagePaths = imagePaths;
-            //CurrentFolderDirectory = null;
+          
             var sortedFiles = imagePaths.OrderBy(path => path).ToArray();
+
+            if (isFirstCallImagePaths)
+            {
+                
+                FirstCallForImagePaths(true, sortedFiles);
+                CurrentImagePaths = imagePaths;
+                CurrentFolderDirectory = null;
+                isFirstCallImagePaths = false;
+
+            }
             if (sortByRatingisTrue == true)
             {
                 sortedFiles = imagePaths.Where(path =>
@@ -323,12 +346,11 @@ namespace Image_Preview
 
 
         public event EventHandler Clicked;
+      
         public string CurrentItem;
         public Image CurrentImage;
+ 
         public event ThumbPickedEventHandler ThumbPicked;
-
-       
-
         public void pickeditem(string path, Image thumbnail)
         {
 
@@ -336,10 +358,9 @@ namespace Image_Preview
             CurrentImage = thumbnail;
             ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
 
-            MessageBox.Show($"Failed to set rating:{path} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
 
         }
-
 
 
 
@@ -348,16 +369,14 @@ namespace Image_Preview
         {
             int targetThumbSize = (int)size;
 
-            // Try to load the cached image first
             Image cachedImage = await LoadImageFromCache(imagePath);
             if (cachedImage != null)
                 return cachedImage;
 
-            // Ensure the thumbnail directory exists
             if (!Directory.Exists(smallThumbImagesDirectory))
                 Directory.CreateDirectory(smallThumbImagesDirectory);
 
-            // Create the thumbnail in a Task
+         
             return await Task.Run(async () =>
             {
                 try
@@ -370,10 +389,10 @@ namespace Image_Preview
                         int newWidth = (int)(originalWidth * scalingFactor);
                         int newHeight = (int)(originalHeight * scalingFactor);
 
-                        // Generate the thumbnail
+
                         using (var thumbnail = img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero))
                         {
-                            // Create a thumbnail for saving
+                
                             using (var thumbnailForSave = img.GetThumbnailImage(175, 175, null, IntPtr.Zero))
                             {
                                 string fileName = Path.GetFileNameWithoutExtension(imagePath) + "_thumbnail.jpg";
@@ -382,13 +401,13 @@ namespace Image_Preview
                                 await SaveImageToCache(imagePath, thumbnailForSave);
                             }
 
-                            return thumbnail; // Clone to return a copy of the thumbnail
+                            return thumbnail;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Handle exceptions as needed (log or rethrow)
+                    
                     throw new InvalidOperationException("Error generating thumbnail", ex);
                 }
             });
@@ -435,36 +454,13 @@ namespace Image_Preview
 
 
 
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
 
 
 
 
 
-        private void button1_Click_1(object sender, EventArgs e) { }
+   
 
-        private void iconButton1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tableLayoutPanel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void button1_Click_2(object sender, EventArgs e)
-        {
-
-        }
-
-        private void iconButton3_Click(object sender, EventArgs e)
-        {
-
-        }
         public enum ThumbNailSize
         {
             Tiny = 70,
@@ -495,28 +491,18 @@ namespace Image_Preview
       
        
 
-        private async void button1_Click_3(object sender, EventArgs e)
-        {
-            //await Populate(@"C:\Users\mdsai\OneDrive\Pictures\Screenshots");
-            //string[] paths = {@"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (1).png", @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (2).png" };
-            //await Populate(paths);
-            await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
-        }
-
-        private void textBox1_Enter_1(object sender, EventArgs e)
-        {
-
-        }
-
-        //private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        //private async void button1_Click_3(object sender, EventArgs e)
         //{
-            
-            
-        //        // Print details of the key pressed
-        //        Console.WriteLine($"Key pressed: {e.KeyCode}");          // Prints the key code (e.g., "A", "Enter")
-        //        Console.WriteLine($"Key data: {e.KeyData}");              // Prints key data, including modifiers (e.g., "Control, A")
-        //        Console.WriteLine($"Key value (int): {e.KeyValue}");      // Prints the integer value of the key (e.g., 65 for 'A')
-            
+        //    //await Populate(@"C:\Users\mdsai\OneDrive\Pictures\Screenshots");
+        //    string[] paths = { @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (1).png", @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (2).png" };
+        //    //await Populate(paths);
+        //    await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
         //}
+
+       
+
+        
+
+        
     }
 }

@@ -39,11 +39,14 @@ rollout imageloader "Small Browser" width:610 height:600
     )
 
     -- Event handler for when a thumbnail is clicked in the custom control
-    on small_dialog.ThumbPicked sender args do
-    (
-        print "Thumbnail Clicked From Event"
-        print small_dialog.CurrentItem  -- Assuming 'CurrentItem' exists in the C# control
-    )
+    
+	on small_dialog ThumbPicked sender args do(
+		
+		
+		print "Thumb Click From Event"
+		print small_dialog.CurrentItem
+		
+		)
 )
 
 -- Create and show the dialog with the user control
