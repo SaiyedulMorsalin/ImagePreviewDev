@@ -1,54 +1,54 @@
 try (
+    -- Try loading the C# assembly
     dotnet.loadassembly (getFilenamePath (getThisScriptFilename()) + @"\Image Preview.dll")
-) catch ()
+) catch (
+    print "Error loading Image Preview.dll"
+)
 
-rollout imageloader "small browser" width:240 height:270
+rollout imageloader "Small Browser" width:610 height:600
 (
     -- Load the custom user control from the C# assembly
-    dotNetControl small_dialog "Image_Preview.UserControl1" pos:[0, 0] width:550 height:480
-    dotNetControl searchBox "System.Windows.Forms.TextBox" width:100 height:20 pos:[10, 490]
+    dotNetControl small_dialog "Image_Preview.UserControl1" pos:[0, 0] width:600 height:480
+    dotNetControl searchBox "System.Windows.Forms.TextBox" width:100 height:30 pos:[20, 490]
 
-
- 
     on searchBox KeyUp s e do
     (
-		local searchTextMx = searchBox.Text
-		
-		
-		
-		print ("Key data: " + searchTextMx)
-		small_dialog.SearchLoad(searchTextMx)
-		
+        local searchText = searchBox.Text
+        print ("Key data: " + searchText)
+        small_dialog.SearchLoad(searchText)  -- Assuming 'SearchLoad' exists in the C# control
     )
 
     button b01 "Refresh" pos:[10, 520]
     on b01 pressed do
     (
         -- Specify the directory path and load images into the dialog
-        directoryPath = @"C:\Users\mdsai\OneDrive\Desktop\"
-        fileArray = getFiles (directoryPath + "*.jpg")
-        small_dialog.Populate fileArray
+        local directoryPath = @"C:\Users\mdsai\OneDrive\Desktop\"
+        local fileArray = getFiles (directoryPath + "*.jpg")  -- Assuming getFiles is implemented
+        small_dialog.Populate(fileArray)  -- Assuming 'Populate' exists in the C# control
     )
 
     button b02 "Select Directory" pos:[100, 520]
     on b02 pressed do
     (
-        mypath = getSavepath()
-        if mypath != undefined do
-        (
-            fileArray = getFiles (mypath + "*.jpg")
-            small_dialog.Populate fileArray
+        local mypath = getSavepath()
+       
+           
+            small_dialog.Populate(mypath)
             print mypath
-        )
+        
     )
 
     -- Event handler for when a thumbnail is clicked in the custom control
     on small_dialog.ThumbPicked sender args do
     (
-        print "Thumb Click From Event"
-        print small_dialog.CurrentItem
+        print "Thumbnail Clicked From Event"
+        print small_dialog.CurrentItem  -- Assuming 'CurrentItem' exists in the C# control
     )
 )
 
-imagedialog = newRolloutFloater "small browser" 600 650
+-- Create and show the dialog with the user control
+imagedialog = newRolloutFloater "Small Browser" 610 600
 addRollout imageloader imagedialog
+
+-- Auto resize the rollout for better display
+

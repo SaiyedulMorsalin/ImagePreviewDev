@@ -56,9 +56,9 @@ namespace Image_Preview
             this.flowLayoutPanel1.AutoScroll = true;
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.DimGray;
             this.flowLayoutPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(26, 59);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(23, 59);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(680, 450);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(574, 450);
             this.flowLayoutPanel1.TabIndex = 0;
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
@@ -76,22 +76,22 @@ namespace Image_Preview
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10.9375F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 89.0625F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 39F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(709, 552);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(600, 552);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.66568F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.33433F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.2838F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66.71619F));
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel2, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel3, 0, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(26, 3);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(23, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.Padding = new System.Windows.Forms.Padding(3);
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(679, 50);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(574, 50);
             this.tableLayoutPanel2.TabIndex = 1;
             this.tableLayoutPanel2.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel2_Paint);
             // 
@@ -101,9 +101,9 @@ namespace Image_Preview
             this.flowLayoutPanel2.Controls.Add(this.iconButton3);
             this.flowLayoutPanel2.Controls.Add(this.button1);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(172, 6);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(195, 6);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(501, 38);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(373, 38);
             this.flowLayoutPanel2.TabIndex = 0;
             // 
             // iconButton1
@@ -165,7 +165,7 @@ namespace Image_Preview
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(6, 6);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(160, 38);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(183, 38);
             this.flowLayoutPanel3.TabIndex = 1;
             // 
             // pictureBox1
@@ -206,7 +206,7 @@ namespace Image_Preview
             this.BackColor = System.Drawing.Color.DimGray;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UserControl1";
-            this.Size = new System.Drawing.Size(709, 552);
+            this.Size = new System.Drawing.Size(600, 552);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);

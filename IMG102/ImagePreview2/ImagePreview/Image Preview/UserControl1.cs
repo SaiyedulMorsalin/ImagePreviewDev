@@ -115,7 +115,7 @@ namespace Image_Preview
 
         }
       
-        private async void Reload()
+        public async void Reload()
         {
             if (CurrentImagePaths != null && CurrentImagePaths.Length != 0 )
             {
@@ -336,7 +336,7 @@ namespace Image_Preview
             CurrentImage = thumbnail;
             ThumbPicked?.Invoke(this, new PickedEventArgs(path, thumbnail));
 
-          
+            MessageBox.Show($"Failed to set rating:{path} ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         }
 
@@ -492,99 +492,7 @@ namespace Image_Preview
 
 
 
-        //private async void textBox1_TextChanged(object sender, EventArgs e)
-        //{
-
-        //    string searchTerm = textBox1.Text.Trim().ToLower();
-           
-        //    if (!string.IsNullOrEmpty(searchTerm))
-        //    {
-               
-        //        if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
-        //        {
-        //            string[] searchImagePaths = CurrentImagePaths;
-        //            var filteredPaths = searchImagePaths
-        //                .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchTerm))
-        //                .ToArray();
-        //            await Populate(filteredPaths);
-        //        }
-                
-        //        else if (!string.IsNullOrEmpty(CurrentFolderDirectory))
-        //        {
-        //             string currentSearcDirectory = CurrentFolderDirectory;
-        //            var directoryInfo = new DirectoryInfo(currentSearcDirectory);
-        //            var filteredFiles = directoryInfo.GetFiles()
-        //                .Where(file => Path.GetFileNameWithoutExtension(file.FullName).ToLower().Contains(searchTerm.ToLower()))
-        //                .Select(file => file.FullName)
-        //                .ToArray();
-        //            await Populate(filteredFiles);
-                  
-        //        }
-        //    }
-        //    if (string.IsNullOrEmpty(searchTerm))
-        //    {
-               
-        //        Reload();
-        //    }
-
-
-
-        //}
-        //private async void textBox1_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    // Ensure the text box is enabled and focused
-        //    textBox1.Enabled = true;
-        //    textBox1.Focus();
-          
-        //    // Check if the Enter key was pressed
-        //    if (e.KeyCode == Keys.Enter)
-        //    {
-        //        // Trigger the search functionality
-        //        string searchTerm = textBox1.Text.Trim().ToLower();
-        //        if (!string.IsNullOrEmpty(searchTerm))
-        //        {
-        //            // Search by file name for CurrentImagePaths array
-        //            if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
-        //            {
-        //                var filteredPaths = CurrentImagePaths
-        //                    .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchTerm))
-        //                    .ToArray();
-        //                await Populate(filteredPaths);
-        //            }
-        //            // Search by file name for files in CurrentFolderDirectory
-        //            else if (!string.IsNullOrEmpty(CurrentFolderDirectory))
-        //            {
-        //                var directoryInfo = new DirectoryInfo(CurrentFolderDirectory);
-        //                var filteredFiles = directoryInfo.GetFiles()
-        //                    .Where(file => Path.GetFileNameWithoutExtension(file.FullName).ToLower().Contains(searchTerm))
-        //                    .Select(file => file.FullName)
-        //                    .ToArray();
-        //                await Populate(filteredFiles);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // If the search term is empty, reload all images
-        //            Reload();
-        //        }
-
-        //        // Prevent further processing of the Enter key
-        //        e.Handled = true;
-        //        e.SuppressKeyPress = true;
-        //    }
-        //    // Check if the Escape key was pressed
-        //    else if (e.KeyCode == Keys.Escape)
-        //    {
-        //        // Clear the search text box and reload all images
-        //        textBox1.Text = string.Empty;
-        //        Reload();
-
-        //        // Prevent further processing of the Escape key
-        //        e.Handled = true;
-        //        e.SuppressKeyPress = true;
-        //    }
-        //}
-
+      
        
 
         private async void button1_Click_3(object sender, EventArgs e)
