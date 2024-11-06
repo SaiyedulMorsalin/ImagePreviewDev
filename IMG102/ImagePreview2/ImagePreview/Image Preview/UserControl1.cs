@@ -18,6 +18,7 @@ using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using Image_Preview.Properties;
 using Path = System.IO.Path;
 using System.Windows.Media;
+using System.Runtime.Serialization.Formatters.Binary;
 namespace Image_Preview
 {
     public partial class UserControl1 : UserControl
@@ -28,11 +29,14 @@ namespace Image_Preview
         public static string saveThumbImages = @"C:\Newfolder";
         private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;
         private ContextMenu menu;
-
-        public string CurrentFolderDirectory = null;
+        private const string PlaceholderText = "Search images...";
+        
         public string[] CurrentImagePaths = null;
+        public string currentSearcFolderDirectory = null;
+        public string[] CurrentSearcImagePaths = null;
         private bool sortByRatingisTrue = false;
-
+        private readonly string cacheDirectory = @"C:\ImageCache";
+        
 
         public UserControl1()
         {
@@ -46,8 +50,8 @@ namespace Image_Preview
             ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", Resources.tiny, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
             ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", Resources.meduim, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
             ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", Resources.large, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
-           
 
+         
 
 
 
@@ -60,8 +64,14 @@ namespace Image_Preview
 
             this.iconButton1.MouseDown += new MouseEventHandler(this.iconButton1_MouseDown);
             this.iconButton3.MouseDown += new MouseEventHandler(this.iconButton2_MouseDown);
-        }
 
+
+
+
+
+            
+        }
+        
         public delegate void ThumbPickedEventHandler(object sender, PickedEventArgs e);
         private void iconButton1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -71,6 +81,15 @@ namespace Image_Preview
 
                 this.iconButton1.ContextMenuStrip.Show(this.iconButton1, e.Location);
             }
+        }
+        public void RemoveText(object sender, EventArgs e)
+        {
+
+        }
+
+        public void AddText(object sender, EventArgs e)
+        {
+
         }
         private void iconButton2_MouseDown(object sender, MouseEventArgs e)
         {
@@ -111,20 +130,67 @@ namespace Image_Preview
 
         }
 
-      
+
+        public async void SearchLoad(string searchText)
+        {
+            if (!string.IsNullOrEmpty(searchText))
+            {
+              
+                if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
+                {
+                    string[] searchImagePaths = CurrentImagePaths;
+                    var filteredPaths = searchImagePaths
+                        .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchText))
+                        .ToArray();
+                    await Populate(filteredPaths);
+                }
+                // Filter by file name for files in CurrentFolderDirectory
+                else if (!string.IsNullOrEmpty(CurrentFolderDirectory))
+                {
+                    var currentSearcDirectory = CurrentFolderDirectory;
+                    var directoryInfo = new DirectoryInfo(currentSearcDirectory);
+                    var filteredFiles = directoryInfo.GetFiles()
+                        .Where(file => Path.GetFileNameWithoutExtension(file.FullName).ToLower().Contains(searchText))
+                        .Select(file => file.FullName)
+                        .ToArray();
+                    await Populate(filteredFiles);
+                }
+            }
+            if (string.IsNullOrEmpty(searchText))
+            {
+                Reload();
+            }
+        }
 
 
 
 
 
 
+        public  string CurrentFolderDirectory;
+        public string CurrentFolderDirectoryForReadonly;
+        private bool isFirstCall = true;
+        public void FirstCall(bool val,string path)
+        {
+            CurrentFolderDirectoryForReadonly = path;
+        }
         public async Task Populate(string path)
         {
             flowLayoutPanel1.Controls.Clear();
+            
+            if (isFirstCall)
+            {
+                CurrentFolderDirectory = path;
+                FirstCall(true, path);
+                isFirstCall = false;
+                
+            }
 
-            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+
+             DirectoryInfo directoryInfo = new DirectoryInfo(path);
             FileInfo[] files = directoryInfo.GetFiles();
-            CurrentFolderDirectory = path;
+          
+            
             CurrentImagePaths = null;
 
 
@@ -162,7 +228,7 @@ namespace Image_Preview
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
                     customBtn.BackgroundImage = thumbnail;
                     customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                     customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
                     ContextMenuStrip contextMenuStripRightClick = new ContextMenuStrip();
@@ -191,7 +257,7 @@ namespace Image_Preview
 
             this.flowLayoutPanel1.Controls.Clear();
             CurrentImagePaths = imagePaths;
-            CurrentFolderDirectory = null;
+            //CurrentFolderDirectory = null;
             var sortedFiles = imagePaths.OrderBy(path => path).ToArray();
             if (sortByRatingisTrue == true)
             {
@@ -237,7 +303,7 @@ namespace Image_Preview
                 Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
                 customBtn.BackgroundImage = thumbnail;
                 customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                 customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
                 ContextMenuStrip contextMenuStripRightClick = new ContextMenuStrip();
@@ -257,11 +323,12 @@ namespace Image_Preview
 
 
         public event EventHandler Clicked;
-        public string scriptCommand;
         public string CurrentItem;
         public Image CurrentImage;
-        public string maxScriptCode;
         public event ThumbPickedEventHandler ThumbPicked;
+
+       
+
         public void pickeditem(string path, Image thumbnail)
         {
 
@@ -274,39 +341,98 @@ namespace Image_Preview
         }
 
 
-        
 
 
+        public static string smallThumbImagesDirectory = @"C:\SmallThumb";
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size)
         {
             int targetThumbSize = (int)size;
 
-            return await Task.Run(() =>
-            {
-                using (var img = Image.FromFile(imagePath))
-                {
-                    int originalWidth = img.Width;
-                    int originalHeight = img.Height;
-                    double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
-                    int newWidth = (int)(originalWidth * scalingFactor);
-                    int newHeight = (int)(originalHeight * scalingFactor);
-                    var thumbnail = img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
-                    img.Dispose();
+            // Try to load the cached image first
+            Image cachedImage = await LoadImageFromCache(imagePath);
+            if (cachedImage != null)
+                return cachedImage;
 
-                    return thumbnail;
+            // Ensure the thumbnail directory exists
+            if (!Directory.Exists(smallThumbImagesDirectory))
+                Directory.CreateDirectory(smallThumbImagesDirectory);
+
+            // Create the thumbnail in a Task
+            return await Task.Run(async () =>
+            {
+                try
+                {
+                    using (var img = Image.FromFile(imagePath))
+                    {
+                        int originalWidth = img.Width;
+                        int originalHeight = img.Height;
+                        double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
+                        int newWidth = (int)(originalWidth * scalingFactor);
+                        int newHeight = (int)(originalHeight * scalingFactor);
+
+                        // Generate the thumbnail
+                        using (var thumbnail = img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero))
+                        {
+                            // Create a thumbnail for saving
+                            using (var thumbnailForSave = img.GetThumbnailImage(175, 175, null, IntPtr.Zero))
+                            {
+                                string fileName = Path.GetFileNameWithoutExtension(imagePath) + "_thumbnail.jpg";
+                                string thumbPath = Path.Combine(smallThumbImagesDirectory, fileName);
+                                thumbnailForSave.Save(thumbPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                await SaveImageToCache(imagePath, thumbnailForSave);
+                            }
+
+                            return thumbnail; // Clone to return a copy of the thumbnail
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions as needed (log or rethrow)
+                    throw new InvalidOperationException("Error generating thumbnail", ex);
                 }
             });
         }
 
 
 
-
-
-
-        private void button1_Click(object sender, EventArgs e)
+        public async Task SaveImageToCache(string filePath, Image image)
         {
-
+            string cachePath = GetCacheFilePath(filePath);
+            await Task.Run(() =>
+            {
+                using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(fs, image);
+                }
+            });
         }
+
+
+        public async Task<Image> LoadImageFromCache(string filePath)
+        {
+            string cachePath = GetCacheFilePath(filePath);
+            if (!File.Exists(cachePath))
+                return null;
+
+            return await Task.Run(() =>
+            {
+                using (FileStream fs = new FileStream(cachePath, FileMode.Open, FileAccess.Read))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    return (Image)formatter.Deserialize(fs);
+                }
+            });
+        }
+        private string GetCacheFilePath(string originalFilePath)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(originalFilePath);
+            return Path.Combine(cacheDirectory, fileName + ".imgcache");
+        }
+
+
+
 
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -362,16 +488,127 @@ namespace Image_Preview
 
 
         }
-        
 
-        private void button1_ContextMenuStripChanged(object sender, EventArgs e)
-        {
 
-        }
 
-        private void textBox1_Enter(object sender, EventArgs e)
-        {
+
+        //private async void textBox1_TextChanged(object sender, EventArgs e)
+        //{
+
+        //    string searchTerm = textBox1.Text.Trim().ToLower();
+           
+        //    if (!string.IsNullOrEmpty(searchTerm))
+        //    {
+               
+        //        if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
+        //        {
+        //            string[] searchImagePaths = CurrentImagePaths;
+        //            var filteredPaths = searchImagePaths
+        //                .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchTerm))
+        //                .ToArray();
+        //            await Populate(filteredPaths);
+        //        }
+                
+        //        else if (!string.IsNullOrEmpty(CurrentFolderDirectory))
+        //        {
+        //             string currentSearcDirectory = CurrentFolderDirectory;
+        //            var directoryInfo = new DirectoryInfo(currentSearcDirectory);
+        //            var filteredFiles = directoryInfo.GetFiles()
+        //                .Where(file => Path.GetFileNameWithoutExtension(file.FullName).ToLower().Contains(searchTerm.ToLower()))
+        //                .Select(file => file.FullName)
+        //                .ToArray();
+        //            await Populate(filteredFiles);
+                  
+        //        }
+        //    }
+        //    if (string.IsNullOrEmpty(searchTerm))
+        //    {
+               
+        //        Reload();
+        //    }
+
+
+
+        //}
+        //private async void textBox1_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    // Ensure the text box is enabled and focused
+        //    textBox1.Enabled = true;
+        //    textBox1.Focus();
           
+        //    // Check if the Enter key was pressed
+        //    if (e.KeyCode == Keys.Enter)
+        //    {
+        //        // Trigger the search functionality
+        //        string searchTerm = textBox1.Text.Trim().ToLower();
+        //        if (!string.IsNullOrEmpty(searchTerm))
+        //        {
+        //            // Search by file name for CurrentImagePaths array
+        //            if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
+        //            {
+        //                var filteredPaths = CurrentImagePaths
+        //                    .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchTerm))
+        //                    .ToArray();
+        //                await Populate(filteredPaths);
+        //            }
+        //            // Search by file name for files in CurrentFolderDirectory
+        //            else if (!string.IsNullOrEmpty(CurrentFolderDirectory))
+        //            {
+        //                var directoryInfo = new DirectoryInfo(CurrentFolderDirectory);
+        //                var filteredFiles = directoryInfo.GetFiles()
+        //                    .Where(file => Path.GetFileNameWithoutExtension(file.FullName).ToLower().Contains(searchTerm))
+        //                    .Select(file => file.FullName)
+        //                    .ToArray();
+        //                await Populate(filteredFiles);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // If the search term is empty, reload all images
+        //            Reload();
+        //        }
+
+        //        // Prevent further processing of the Enter key
+        //        e.Handled = true;
+        //        e.SuppressKeyPress = true;
+        //    }
+        //    // Check if the Escape key was pressed
+        //    else if (e.KeyCode == Keys.Escape)
+        //    {
+        //        // Clear the search text box and reload all images
+        //        textBox1.Text = string.Empty;
+        //        Reload();
+
+        //        // Prevent further processing of the Escape key
+        //        e.Handled = true;
+        //        e.SuppressKeyPress = true;
+        //    }
+        //}
+
+       
+
+        private async void button1_Click_3(object sender, EventArgs e)
+        {
+            //await Populate(@"C:\Users\mdsai\OneDrive\Pictures\Screenshots");
+            //string[] paths = {@"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (1).png", @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (2).png" };
+            //await Populate(paths);
+            await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
         }
+
+        private void textBox1_Enter_1(object sender, EventArgs e)
+        {
+
+        }
+
+        //private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        //{
+            
+            
+        //        // Print details of the key pressed
+        //        Console.WriteLine($"Key pressed: {e.KeyCode}");          // Prints the key code (e.g., "A", "Enter")
+        //        Console.WriteLine($"Key data: {e.KeyData}");              // Prints key data, including modifiers (e.g., "Control, A")
+        //        Console.WriteLine($"Key value (int): {e.KeyValue}");      // Prints the integer value of the key (e.g., 65 for 'A')
+            
+        //}
     }
 }
