@@ -11,8 +11,14 @@ rollout imageloader "Small Browser" width:610 height:600
     dotNetControl small_dialog "Image_Preview.UserControl1" pos:[0, 0] width:600 height:480
     dotNetControl searchBox "System.Windows.Forms.TextBox" width:100 height:30 pos:[20, 490]
 
-    on searchBox KeyUp s e do
+    on searchBox KeyDown s e do
     (
+		 if (e.KeyCode == Keys.Back)
+		 {
+			
+			 SearchLoad(textBox1.Text);
+			 
+		 }
         local searchText = searchBox.Text
         print ("Key data: " + searchText)
         small_dialog.SearchLoad(searchText)  -- Assuming 'SearchLoad' exists in the C# control
@@ -25,6 +31,8 @@ rollout imageloader "Small Browser" width:610 height:600
         local directoryPath = @"C:\Users\mdsai\OneDrive\Desktop\"
         local fileArray = getFiles (directoryPath + "*.jpg")  -- Assuming getFiles is implemented
         small_dialog.Populate(fileArray)  -- Assuming 'Populate' exists in the C# control
+		
+		
     )
 
     button b02 "Select Directory" pos:[100, 520]

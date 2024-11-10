@@ -21,6 +21,18 @@ using System.Windows.Media;
 using System.Runtime.Serialization.Formatters.Binary;
 namespace Image_Preview
 {
+
+    public class SearchBox
+    {
+        public readonly string str1;
+        public readonly string str2;
+
+        public SearchBox(string str1, string str2)
+        {
+            this.str1 = str1;
+            this.str2 = str2;
+        }   
+    }
     public partial class UserControl1 : UserControl
     {
 
@@ -28,7 +40,7 @@ namespace Image_Preview
         public static string extensions = ".jpg|.png";
         public static string saveThumbImages = @"C:\Newfolder";
         private ThumbNailSize _currentThumbSize = ThumbNailSize.Large;
-        private ContextMenu menu;
+      
         private const string PlaceholderText = "Search images...";
         
         public string[] CurrentImagePaths = null;
@@ -47,7 +59,7 @@ namespace Image_Preview
             ContextMenuStrip contextMenuStripSort = new ContextMenuStrip();
             
 
-            ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", Resources.tiny, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
+            //ToolStripMenuItem tinyMenuItem = new ToolStripMenuItem("Tiny", Resources.tiny, (sender, e) => ChangeThumbSize(ThumbNailSize.Tiny));
             ToolStripMenuItem mediumMenuItem = new ToolStripMenuItem("Medium", Resources.meduim, (sender, e) => ChangeThumbSize(ThumbNailSize.Medium));
             ToolStripMenuItem largeMenuItem = new ToolStripMenuItem("Large", Resources.large, (sender, e) => ChangeThumbSize(ThumbNailSize.Large));
 
@@ -55,7 +67,7 @@ namespace Image_Preview
 
 
 
-            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] { tinyMenuItem, mediumMenuItem, largeMenuItem });
+            contextMenuStripView.Items.AddRange(new ToolStripMenuItem[] {  mediumMenuItem, largeMenuItem });
             ToolStripMenuItem sortByRating = new ToolStripMenuItem("Rating", Resources.yellow_star,  (sender, e) =>  ImageSortByRating());
             contextMenuStripSort.Items.AddRange(new ToolStripMenuItem[] { sortByRating });
             this.iconButton1.ContextMenuStrip = contextMenuStripView;
@@ -64,8 +76,8 @@ namespace Image_Preview
 
             this.iconButton1.MouseDown += new MouseEventHandler(this.iconButton1_MouseDown);
             this.iconButton3.MouseDown += new MouseEventHandler(this.iconButton2_MouseDown);
-
-
+         
+            
 
 
 
@@ -106,42 +118,45 @@ namespace Image_Preview
             sortByRatingisTrue = false;
 
         }
-      
-        public async void Reload()
+        public string PopulateFolder = null;
+        public string[] PopulatePaths = null;
+        private async void Reload()
         {
-            if (CurrentImagePathsForReadonly != null && CurrentImagePathsForReadonly.Length != 0 )
+            if (CurrentImagePaths != null && CurrentImagePaths.Length != 0)
             {
-                await Populate(CurrentImagePathsForReadonly);
+                await Populate(CurrentImagePaths);
             }
-            if (CurrentFolderDirectoryForReadonly != null )
+            if (CurrentFolderDirectory != null)
             {
-                await Populate(CurrentFolderDirectoryForReadonly);
+                await Populate(CurrentFolderDirectory);
             }
-            
+
 
 
         }
 
 
+
+
         public async void SearchLoad(string searchText)
         {
-           
+
             if (string.IsNullOrEmpty(searchText))
             {
-               
+
                 Reload();
                 return;
             }
             string[] filteredPaths = null;
 
-           
+
             if (CurrentImagePaths != null && CurrentImagePaths.Length > 0)
             {
                 filteredPaths = CurrentImagePaths
                     .Where(path => Path.GetFileNameWithoutExtension(path).ToLower().Contains(searchText.ToLower()))
                     .ToArray();
             }
-           
+
             else if (!string.IsNullOrEmpty(CurrentFolderDirectoryForReadonly))
             {
                 var directoryInfo = new DirectoryInfo(CurrentFolderDirectoryForReadonly);
@@ -154,12 +169,13 @@ namespace Image_Preview
             {
                 await Populate(filteredPaths);
             }
-            else {
+            else
+            {
                 flowLayoutPanel1.Controls.Clear();
-                
+
 
             }
-            
+
         }
 
 
@@ -167,11 +183,11 @@ namespace Image_Preview
 
 
 
-
         public string CurrentFolderDirectory;
+
         public string CurrentFolderDirectoryForReadonly;
         private bool isFirstCall = true;
-        public void FirstCall(bool val,string path)
+        public void FirstCall(bool val, string path)
         {
             if (val)
             {
@@ -181,22 +197,21 @@ namespace Image_Preview
         public async Task Populate(string path)
         {
             flowLayoutPanel1.Controls.Clear();
-            
+
             if (isFirstCall)
             {
                 CurrentFolderDirectory = path;
                 FirstCall(true, path);
                 isFirstCall = false;
-                
+
             }
 
-
-             DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            DirectoryInfo directoryInfo = new DirectoryInfo(path);
             FileInfo[] files = directoryInfo.GetFiles();
-          
-            
-            CurrentImagePaths = null;
 
+            CurrentFolderDirectory = path;
+            CurrentImagePaths = null;
+            PopulatePaths = null;
 
             var sortedFiles = files.OrderBy(f => f.FullName).ToArray();
 
@@ -231,8 +246,8 @@ namespace Image_Preview
                     Button customBtn = new Button();
                     Image thumbnail = await GetThumbnailAsync(file.FullName, _currentThumbSize);
                     customBtn.BackgroundImage = thumbnail;
-                    customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                    customBtn.Size = new System.Drawing.Size((int)((int)_currentThumbSize * 1.789), (int)_currentThumbSize);
+                    customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
                     customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                     customBtn.Click += (sender, e) => pickeditem(file.FullName, thumbnail);
                     ContextMenuStrip contextMenuStripRightClick = new ContextMenuStrip();
@@ -253,35 +268,22 @@ namespace Image_Preview
             }
         }
 
+        
 
-        public string [] CurrentImagePathsForReadonly;
-        private bool isFirstCallImagePaths = true;
-        public void FirstCallForImagePaths(bool val, string [] CurrentImagePaths)
-        {
-            if (val)
-            {
-                CurrentImagePathsForReadonly = CurrentImagePaths;
-            }
-            
-        }
+     
         public async Task Populate(string[] imagePaths)
         {
 
             Array.Sort(imagePaths);
 
             this.flowLayoutPanel1.Controls.Clear();
-          
+         
+            CurrentImagePaths = imagePaths; 
+            CurrentFolderDirectory = null;
+            PopulateFolder = null;
             var sortedFiles = imagePaths.OrderBy(path => path).ToArray();
 
-            if (isFirstCallImagePaths)
-            {
-                
-                FirstCallForImagePaths(true, sortedFiles);
-                CurrentImagePaths = imagePaths;
-                CurrentFolderDirectory = null;
-                isFirstCallImagePaths = false;
-
-            }
+           
             if (sortByRatingisTrue == true)
             {
                 sortedFiles = imagePaths.Where(path =>
@@ -304,7 +306,7 @@ namespace Image_Preview
 
             }
 
-
+            
 
             foreach (var imagePath in sortedFiles)
             {
@@ -325,8 +327,8 @@ namespace Image_Preview
                 Button customBtn = new Button();
                 Image thumbnail = await GetThumbnailAsync(imagePath, _currentThumbSize);
                 customBtn.BackgroundImage = thumbnail;
-                customBtn.Size = new System.Drawing.Size((int)_currentThumbSize, (int)_currentThumbSize);
-                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+                customBtn.Size = new System.Drawing.Size((int)((int)_currentThumbSize * 1.789), (int)_currentThumbSize);
+                customBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
                 customBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
                 customBtn.Click += (sender, e) => pickeditem(imagePath, thumbnail);
                 ContextMenuStrip contextMenuStripRightClick = new ContextMenuStrip();
@@ -362,7 +364,8 @@ namespace Image_Preview
 
         }
 
-
+      
+        
 
         public static string smallThumbImagesDirectory = @"C:\SmallThumb";
         public async Task<Image> GetThumbnailAsync(string imagePath, ThumbNailSize size)
@@ -385,9 +388,10 @@ namespace Image_Preview
                     {
                         int originalWidth = img.Width;
                         int originalHeight = img.Height;
-                        double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
-                        int newWidth = (int)(originalWidth * scalingFactor);
-                        int newHeight = (int)(originalHeight * scalingFactor);
+                        //double scalingFactor = Math.Min((double)targetThumbSize / originalWidth, (double)targetThumbSize / originalHeight);
+                     
+                        int newWidth = (int)(targetThumbSize * 1.789);
+                        int newHeight = (int)(targetThumbSize);
 
 
                         using (var thumbnail = img.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero))
@@ -453,7 +457,7 @@ namespace Image_Preview
 
 
 
-
+        
 
 
 
@@ -463,9 +467,9 @@ namespace Image_Preview
 
         public enum ThumbNailSize
         {
-            Tiny = 70,
-            Medium = 100,
-            Large = 175,
+           
+            Medium = 76,
+            Large = 160,
         }
         public static void SetImageRating(int rating, string path)
         {
@@ -485,24 +489,55 @@ namespace Image_Preview
 
         }
 
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            
+            string[] paths = { @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (1).png", @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (2).png" };
+            await Populate(paths);
+        }
+
+
+
+
+
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox1.Text != null && textBox1.Text != "")
+            {
+                SearchLoad(textBox1.Text);
+            }
+            else
+            {
+                string reload = "";
+                SearchLoad(reload);
+            }
+
+        }
+
+
+
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            PopulateFolder = @"C:\Users\mdsai\OneDrive\Desktop";
+            await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
+ 
+           
+
+        }
+
+
+        
+
 
 
 
       
-       
 
-        //private async void button1_Click_3(object sender, EventArgs e)
-        //{
-        //    //await Populate(@"C:\Users\mdsai\OneDrive\Pictures\Screenshots");
-        //    string[] paths = { @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (1).png", @"C:\Users\mdsai\OneDrive\Pictures\Screenshots\Screenshot (2).png" };
-        //    //await Populate(paths);
-        //    await Populate(@"C:\Users\mdsai\OneDrive\Desktop");
-        //}
 
-       
 
-        
 
-        
+
     }
 }
